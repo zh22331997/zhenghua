@@ -75,6 +75,7 @@
       border-radius: 12px;
       outline: none;
       background: #fff;
+      font-family: inherit;
     }
 
     input:focus, textarea:focus, select:focus {
@@ -151,6 +152,7 @@
       font-size: 18px;
       font-weight: 700;
       cursor: pointer;
+      font-family: inherit;
     }
 
     button:disabled {
@@ -163,6 +165,15 @@
       text-align: center;
       font-weight: 700;
       line-height: 1.6;
+      min-height: 24px;
+    }
+
+    .message.error {
+      color: #c0392b;
+    }
+
+    .message.sending {
+      color: #395f8c;
     }
 
     .hint {
@@ -234,6 +245,10 @@
       border-radius: 12px;
       margin-bottom: 22px;
     }
+
+    iframe {
+      display: none;
+    }
   </style>
 </head>
 
@@ -252,9 +267,10 @@
           本表單僅供請假登記與學生照顧使用，資料不作其他用途。
         </div>
 
-        <form id="leaveForm">
+        <form id="leaveForm" method="POST" target="gasFrame">
           <input type="hidden" id="classType" name="classType" value="">
           <input type="hidden" id="healthStatus" name="healthStatus" value="">
+          <input type="hidden" id="clientToken" name="clientToken" value="">
 
           <label for="studentName">學生姓名</label>
           <input
@@ -434,6 +450,8 @@
     </div>
   </div>
 
+  <iframe id="gasFrame" name="gasFrame"></iframe>
+
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
 
@@ -466,6 +484,17 @@
     const otherReasonBox = document.getElementById("otherReasonBox");
     const otherReasonInput = document.getElementById("otherReason");
 
+    const clientTokenInput = document.getElementById("clientToken");
+
+    let pendingToken = "";
+    let timeoutTimer = null;
+
+    form.action = GAS_URL;
+
+    function createToken() {
+      return Date.now().toString() + "-" + Math.random().toString(36).slice(2);
+    }
+
     function updateClassType() {
       const selectedClasses = Array.from(classCheckboxes)
         .filter(function(item) {
@@ -478,8 +507,24 @@
       classTypeInput.value = selectedClasses.join("、");
     }
 
+    function updateHealthStatus() {
+      const selectedHealth = Array.from(healthCheckboxes)
+        .filter(function(item) {
+          return item.checked;
+        })
+        .map(function(item) {
+          return item.value;
+        });
+
+      healthStatusInput.value = selectedHealth.join("、");
+    }
+
     classCheckboxes.forEach(function(checkbox) {
       checkbox.addEventListener("change", updateClassType);
+    });
+
+    healthCheckboxes.forEach(function(checkbox) {
+      checkbox.addEventListener("change", updateHealthStatus);
     });
 
     document.querySelectorAll('input[name="reason"]').forEach(function(input) {
@@ -505,26 +550,13 @@
       });
     });
 
-    healthCheckboxes.forEach(function(checkbox) {
-      checkbox.addEventListener("change", function() {
-        const selectedHealth = Array.from(healthCheckboxes)
-          .filter(function(item) {
-            return item.checked;
-          })
-          .map(function(item) {
-            return item.value;
-          });
-
-        healthStatusInput.value = selectedHealth.join("、");
-      });
-    });
-
     function resetAllFields() {
       form.reset();
       datePicker.clear();
 
       classTypeInput.value = "";
       healthStatusInput.value = "";
+      clientTokenInput.value = "";
 
       healthBox.classList.add("hidden");
       otherReasonBox.classList.add("hidden");
@@ -550,6 +582,49 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    function showSending(text) {
+      message.textContent = text;
+      message.className = "message sending";
+    }
+
+    function showError(text) {
+      message.textContent = text;
+      message.className = "message error";
+    }
+
+    function finishSubmitState() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "重新送出";
+    }
+
+    window.addEventListener("message", function(event) {
+      const data = event.data;
+
+      if (!data || data.source !== "leaveFormGAS") {
+        return;
+      }
+
+      if (!pendingToken || data.clientToken !== pendingToken) {
+        return;
+      }
+
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer);
+        timeoutTimer = null;
+      }
+
+      if (data.success === true) {
+        pendingToken = "";
+        resetAllFields();
+        showSuccessScreen();
+        return;
+      }
+
+      pendingToken = "";
+      showError("送出失敗：" + (data.message || "系統寫入失敗，請重新送出或直接聯絡校方。"));
+      finishSubmitState();
+    });
+
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
@@ -557,6 +632,7 @@
       message.className = "message";
 
       updateClassType();
+      updateHealthStatus();
 
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -576,21 +652,23 @@
         return;
       }
 
+      pendingToken = createToken();
+      clientTokenInput.value = pendingToken;
+
       submitBtn.disabled = true;
       submitBtn.textContent = "送出中...";
+      showSending("資料送出中，請勿關閉頁面。");
 
-      const formData = new FormData(form);
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer);
+      }
 
-      fetch(GAS_URL, {
-        method: "POST",
-        mode: "no-cors",
-        body: formData
-      });
+      timeoutTimer = setTimeout(function() {
+        showError("系統尚未回傳成功訊息，資料可能未送出。請先不要關閉畫面，可重新送出一次；若仍失敗，請直接聯絡校方。");
+        finishSubmitState();
+      }, 30000);
 
-      setTimeout(function() {
-        resetAllFields();
-        showSuccessScreen();
-      }, 500);
+      HTMLFormElement.prototype.submit.call(form);
     });
   </script>
 </body>
