@@ -456,220 +456,299 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby5kAHFFLMQK1nd1qluGtzCeQvFNtysrYoQylBQMpMrtz8FMkB1UuOy-ulrAZMalCfGlQ/exec";
+  const GAS_URL = "https://script.google.com/macros/s/AKfycby5kAHFFLMQK1nd1qluGtzCeQvFNtysrYoQylBQMpMrtz8FMkB1UuOy-ulrAZMalCfGlQ/exec";
 
-    const datePicker = flatpickr("#leaveDate", {
-      mode: "multiple",
-      dateFormat: "Y-m-d",
-      locale: "zh_tw",
-      conjunction: "、",
-      minDate: "today"
-    });
+  const datePicker = flatpickr("#leaveDate", {
+    mode: "multiple",
+    dateFormat: "Y-m-d",
+    locale: "zh_tw",
+    conjunction: "、",
+    minDate: "today"
+  });
 
-    const formScreen = document.getElementById("formScreen");
-    const successScreen = document.getElementById("successScreen");
+  const formScreen = document.getElementById("formScreen");
+  const successScreen = document.getElementById("successScreen");
 
-    const form = document.getElementById("leaveForm");
-    const studentNameInput = document.getElementById("studentName");
-    const submitBtn = document.getElementById("submitBtn");
-    const message = document.getElementById("message");
+  const form = document.getElementById("leaveForm");
+  const studentNameInput = document.getElementById("studentName");
+  const submitBtn = document.getElementById("submitBtn");
+  const message = document.getElementById("message");
 
-    const classTypeInput = document.getElementById("classType");
-    const classCheckboxes = document.querySelectorAll(".class-checkbox");
+  const classTypeInput = document.getElementById("classType");
+  const classCheckboxes = document.querySelectorAll(".class-checkbox");
 
-    const healthBox = document.getElementById("healthBox");
-    const healthStatusInput = document.getElementById("healthStatus");
-    const healthCheckboxes = document.querySelectorAll(".health-checkbox");
+  const healthBox = document.getElementById("healthBox");
+  const healthStatusInput = document.getElementById("healthStatus");
+  const healthCheckboxes = document.querySelectorAll(".health-checkbox");
 
-    const otherReasonBox = document.getElementById("otherReasonBox");
-    const otherReasonInput = document.getElementById("otherReason");
+  const otherReasonBox = document.getElementById("otherReasonBox");
+  const otherReasonInput = document.getElementById("otherReason");
 
-    const clientTokenInput = document.getElementById("clientToken");
+  const clientTokenInput = document.getElementById("clientToken");
 
-    let pendingToken = "";
-    let timeoutTimer = null;
+  let pendingToken = "";
+  let checkTimer = null;
+  let timeoutTimer = null;
+  let checkingCount = 0;
 
-    form.action = GAS_URL;
+  form.action = GAS_URL;
+  form.method = "POST";
+  form.target = "gasFrame";
 
-    function createToken() {
-      return Date.now().toString() + "-" + Math.random().toString(36).slice(2);
-    }
+  function createToken() {
+    return Date.now().toString() + "-" + Math.random().toString(36).slice(2);
+  }
 
-    function updateClassType() {
-      const selectedClasses = Array.from(classCheckboxes)
-        .filter(function(item) {
-          return item.checked;
-        })
-        .map(function(item) {
-          return item.value;
-        });
-
-      classTypeInput.value = selectedClasses.join("、");
-    }
-
-    function updateHealthStatus() {
-      const selectedHealth = Array.from(healthCheckboxes)
-        .filter(function(item) {
-          return item.checked;
-        })
-        .map(function(item) {
-          return item.value;
-        });
-
-      healthStatusInput.value = selectedHealth.join("、");
-    }
-
-    classCheckboxes.forEach(function(checkbox) {
-      checkbox.addEventListener("change", updateClassType);
-    });
-
-    healthCheckboxes.forEach(function(checkbox) {
-      checkbox.addEventListener("change", updateHealthStatus);
-    });
-
-    document.querySelectorAll('input[name="reason"]').forEach(function(input) {
-      input.addEventListener("change", function() {
-        if (this.value === "病假") {
-          healthBox.classList.remove("hidden");
-        } else {
-          healthBox.classList.add("hidden");
-          healthCheckboxes.forEach(function(checkbox) {
-            checkbox.checked = false;
-          });
-          healthStatusInput.value = "";
-        }
-
-        if (this.value === "其他") {
-          otherReasonBox.classList.remove("hidden");
-          otherReasonInput.required = true;
-        } else {
-          otherReasonBox.classList.add("hidden");
-          otherReasonInput.required = false;
-          otherReasonInput.value = "";
-        }
+  function updateClassType() {
+    const selectedClasses = Array.from(classCheckboxes)
+      .filter(function(item) {
+        return item.checked;
+      })
+      .map(function(item) {
+        return item.value;
       });
+
+    classTypeInput.value = selectedClasses.join("、");
+  }
+
+  function updateHealthStatus() {
+    const selectedHealth = Array.from(healthCheckboxes)
+      .filter(function(item) {
+        return item.checked;
+      })
+      .map(function(item) {
+        return item.value;
+      });
+
+    healthStatusInput.value = selectedHealth.join("、");
+  }
+
+  classCheckboxes.forEach(function(checkbox) {
+    checkbox.addEventListener("change", updateClassType);
+  });
+
+  healthCheckboxes.forEach(function(checkbox) {
+    checkbox.addEventListener("change", updateHealthStatus);
+  });
+
+  document.querySelectorAll('input[name="reason"]').forEach(function(input) {
+    input.addEventListener("change", function() {
+      if (this.value === "病假") {
+        healthBox.classList.remove("hidden");
+      } else {
+        healthBox.classList.add("hidden");
+        healthCheckboxes.forEach(function(checkbox) {
+          checkbox.checked = false;
+        });
+        healthStatusInput.value = "";
+      }
+
+      if (this.value === "其他") {
+        otherReasonBox.classList.remove("hidden");
+        otherReasonInput.required = true;
+      } else {
+        otherReasonBox.classList.add("hidden");
+        otherReasonInput.required = false;
+        otherReasonInput.value = "";
+      }
     });
+  });
 
-    function resetAllFields() {
-      form.reset();
-      datePicker.clear();
+  function resetAllFields() {
+    form.reset();
+    datePicker.clear();
 
-      classTypeInput.value = "";
-      healthStatusInput.value = "";
-      clientTokenInput.value = "";
+    classTypeInput.value = "";
+    healthStatusInput.value = "";
+    clientTokenInput.value = "";
 
-      healthBox.classList.add("hidden");
-      otherReasonBox.classList.add("hidden");
-      otherReasonInput.required = false;
+    healthBox.classList.add("hidden");
+    otherReasonBox.classList.add("hidden");
+    otherReasonInput.required = false;
 
-      message.textContent = "";
-      message.className = "message";
+    message.textContent = "";
+    message.className = "message";
 
-      submitBtn.disabled = false;
-      submitBtn.textContent = "送出請假申請";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "送出請假申請";
+
+    pendingToken = "";
+    checkingCount = 0;
+  }
+
+  function showSuccessScreen() {
+    formScreen.classList.add("hidden");
+    successScreen.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function backToForm() {
+    resetAllFields();
+    successScreen.classList.add("hidden");
+    formScreen.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function showSending(text) {
+    message.textContent = text;
+    message.className = "message sending";
+  }
+
+  function showError(text) {
+    message.textContent = text;
+    message.className = "message error";
+  }
+
+  function stopChecking() {
+    if (checkTimer) {
+      clearTimeout(checkTimer);
+      checkTimer = null;
     }
 
-    function showSuccessScreen() {
-      formScreen.classList.add("hidden");
-      successScreen.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (timeoutTimer) {
+      clearTimeout(timeoutTimer);
+      timeoutTimer = null;
+    }
+  }
+
+  function finishSubmitState() {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "重新送出";
+  }
+
+  function checkWriteStatus() {
+    if (!pendingToken) {
+      return;
     }
 
-    function backToForm() {
-      resetAllFields();
-      successScreen.classList.add("hidden");
-      formScreen.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    checkingCount++;
 
-    function showSending(text) {
-      message.textContent = text;
-      message.className = "message sending";
-    }
+    const callbackName = "leaveFormCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
 
-    function showError(text) {
-      message.textContent = text;
-      message.className = "message error";
-    }
+    window[callbackName] = function(result) {
+      try {
+        delete window[callbackName];
+      } catch (err) {
+        window[callbackName] = undefined;
+      }
 
-    function finishSubmitState() {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "重新送出";
-    }
+      const oldScript = document.getElementById(callbackName);
+      if (oldScript) {
+        oldScript.remove();
+      }
 
-    window.addEventListener("message", function(event) {
-      const data = event.data;
-
-      if (!data || data.source !== "leaveFormGAS") {
+      if (!result) {
+        scheduleNextCheck();
         return;
       }
 
-      if (!pendingToken || data.clientToken !== pendingToken) {
-        return;
-      }
-
-      if (timeoutTimer) {
-        clearTimeout(timeoutTimer);
-        timeoutTimer = null;
-      }
-
-      if (data.success === true) {
-        pendingToken = "";
+      if (result.done === true && result.success === true) {
+        stopChecking();
         resetAllFields();
         showSuccessScreen();
         return;
       }
 
-      pendingToken = "";
-      showError("送出失敗：" + (data.message || "系統寫入失敗，請重新送出或直接聯絡校方。"));
-      finishSubmitState();
-    });
-
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      message.textContent = "";
-      message.className = "message";
-
-      updateClassType();
-      updateHealthStatus();
-
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
-
-      const chineseNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
-
-      if (!chineseNamePattern.test(studentNameInput.value.trim())) {
-        alert("請填寫學生中文全名，限 2～5 個中文字。");
-        studentNameInput.focus();
-        return;
-      }
-
-      if (!classTypeInput.value) {
-        alert("請至少選擇一項請假班別。");
-        return;
-      }
-
-      pendingToken = createToken();
-      clientTokenInput.value = pendingToken;
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "送出中...";
-      showSending("資料送出中，請勿關閉頁面。");
-
-      if (timeoutTimer) {
-        clearTimeout(timeoutTimer);
-      }
-
-      timeoutTimer = setTimeout(function() {
-        showError("系統尚未回傳成功訊息，資料可能未送出。請先不要關閉畫面，可重新送出一次；若仍失敗，請直接聯絡校方。");
+      if (result.done === true && result.success === false) {
+        stopChecking();
+        showError("送出失敗：" + (result.message || "系統寫入失敗，請重新送出或直接聯絡校方。"));
         finishSubmitState();
-      }, 30000);
+        return;
+      }
 
-      HTMLFormElement.prototype.submit.call(form);
-    });
-  </script>
+      scheduleNextCheck();
+    };
+
+    const script = document.createElement("script");
+    script.id = callbackName;
+    script.src =
+      GAS_URL +
+      "?action=check" +
+      "&clientToken=" + encodeURIComponent(pendingToken) +
+      "&callback=" + encodeURIComponent(callbackName) +
+      "&_=" + Date.now();
+
+    script.onerror = function() {
+      try {
+        delete window[callbackName];
+      } catch (err) {
+        window[callbackName] = undefined;
+      }
+
+      const oldScript = document.getElementById(callbackName);
+      if (oldScript) {
+        oldScript.remove();
+      }
+
+      scheduleNextCheck();
+    };
+
+    document.body.appendChild(script);
+  }
+
+  function scheduleNextCheck() {
+    checkTimer = setTimeout(function() {
+      checkWriteStatus();
+    }, 2000);
+  }
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    message.textContent = "";
+    message.className = "message";
+
+    updateClassType();
+    updateHealthStatus();
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const chineseNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
+
+    if (!chineseNamePattern.test(studentNameInput.value.trim())) {
+      alert("請填寫學生中文全名，限 2～5 個中文字。");
+      studentNameInput.focus();
+      return;
+    }
+
+    if (!classTypeInput.value) {
+      alert("請至少選擇一項請假班別。");
+      return;
+    }
+
+    // 若前一次沒有確認成功，重新送出時沿用同一組 token，避免重複寫入
+    if (!clientTokenInput.value) {
+      clientTokenInput.value = createToken();
+    }
+
+    pendingToken = clientTokenInput.value;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "送出中...";
+    showSending("資料送出中，系統正在確認是否成功寫入，請勿關閉頁面。");
+
+    stopChecking();
+
+    checkingCount = 0;
+
+    HTMLFormElement.prototype.submit.call(form);
+
+    // 先等 2 秒，讓 GAS 有時間寫入，再開始查詢
+    checkTimer = setTimeout(function() {
+      checkWriteStatus();
+    }, 2000);
+
+    timeoutTimer = setTimeout(function() {
+      stopChecking();
+
+      showError("系統尚未確認是否成功寫入。請先不要重複送出，建議直接聯絡校方確認；若校方查無資料，再按「重新送出」。");
+
+      finishSubmitState();
+    }, 45000);
+  });
+</script>
 </body>
 </html>
