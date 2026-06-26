@@ -66,7 +66,7 @@
       font-size: 16px;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       box-sizing: border-box;
       padding: 14px;
@@ -77,7 +77,7 @@
       background: #fff;
     }
 
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       border-color: #1f5fa8;
     }
 
@@ -165,12 +165,11 @@
       line-height: 1.6;
     }
 
-    .success {
-      color: #16834a;
-    }
-
-    .error {
-      color: #c0392b;
+    .hint {
+      font-size: 13px;
+      color: #777;
+      margin-top: 6px;
+      line-height: 1.5;
     }
 
     .note {
@@ -179,13 +178,6 @@
       color: #777;
       line-height: 1.6;
       text-align: center;
-    }
-
-    .hint {
-      font-size: 13px;
-      color: #777;
-      margin-top: 6px;
-      line-height: 1.5;
     }
 
     .section-box {
@@ -208,168 +200,237 @@
       line-height: 1.5;
       margin-bottom: 12px;
     }
+
+    .success-screen {
+      text-align: center;
+      padding: 18px 4px;
+    }
+
+    .success-icon {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+
+    .success-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #16834a;
+      margin-bottom: 10px;
+    }
+
+    .success-text {
+      color: #555;
+      line-height: 1.8;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .success-reminder {
+      background: #f0f6ff;
+      color: #395f8c;
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
   </style>
 </head>
 
 <body>
   <div class="page">
     <div class="card">
-      <h1>清水校請假申請</h1>
 
-      <div class="subtitle">
-        請填寫以下資料，送出後老師會協助登記。
-      </div>
+      <div id="formScreen">
+        <h1>清水校請假申請</h1>
 
-      <div class="privacy-note">
-        本表單僅供請假登記與學生照顧使用，資料不作其他用途。
-      </div>
-
-      <form id="leaveForm">
-        <input type="hidden" id="healthStatus" name="healthStatus" value="">
-
-        <label for="studentName">學生姓名</label>
-        <input
-          type="text"
-          id="studentName"
-          name="studentName"
-          placeholder="請填寫學生中文全名"
-          required
-          pattern="^[\u4e00-\u9fa5]{2,5}$"
-          title="請填寫學生中文全名，限 2～5 個中文字"
-        >
-        <div class="hint">請填寫學生中文全名，例如：王小明。</div>
-
-        <label for="leaveDate">請假日期</label>
-        <input
-          type="text"
-          id="leaveDate"
-          name="leaveDate"
-          placeholder="請選擇一個或多個日期"
-          required
-          readonly
-        >
-        <div class="hint">可一次選擇多個日期。</div>
-
-        <label>請假班別</label>
-        <div class="options three">
-          <label class="option">
-            <input type="radio" name="classType" value="課輔" required>
-            <span>課輔</span>
-          </label>
-
-          <label class="option">
-            <input type="radio" name="classType" value="英文">
-            <span>英文</span>
-          </label>
-
-          <label class="option">
-            <input type="radio" name="classType" value="課輔＋英文">
-            <span>課輔＋英文</span>
-          </label>
+        <div class="subtitle">
+          請填寫以下資料，送出後老師會協助登記。
         </div>
 
-        <label>請假原因</label>
-        <div class="options three">
-          <label class="option">
-            <input type="radio" name="reason" value="病假" required>
-            <span>病假</span>
-          </label>
-
-          <label class="option">
-            <input type="radio" name="reason" value="事假">
-            <span>事假</span>
-          </label>
-
-          <label class="option">
-            <input type="radio" name="reason" value="其他">
-            <span>其他</span>
-          </label>
+        <div class="privacy-note">
+          本表單僅供請假登記與學生照顧使用，資料不作其他用途。
         </div>
 
-        <div id="healthBox" class="section-box hidden">
-          <div class="section-title">身體狀況</div>
-          <div class="section-desc">
-            可複選；若方便填寫，請協助老師掌握照顧與班級健康狀況。
-          </div>
+        <form id="leaveForm">
+          <input type="hidden" id="classType" name="classType" value="">
+          <input type="hidden" id="healthStatus" name="healthStatus" value="">
 
-          <div class="options two">
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="發燒">
-              <span>發燒</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="咳嗽">
-              <span>咳嗽</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="嘔吐">
-              <span>嘔吐</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="拉肚子">
-              <span>拉肚子</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="喉嚨痛">
-              <span>喉嚨痛</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="頭痛">
-              <span>頭痛</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="感冒">
-              <span>感冒</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="流感">
-              <span>流感</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="腸病毒">
-              <span>腸病毒</span>
-            </label>
-
-            <label class="option">
-              <input type="checkbox" class="health-checkbox" value="水痘">
-              <span>水痘</span>
-            </label>
-          </div>
-        </div>
-
-        <div id="otherReasonBox" class="hidden">
-          <label for="otherReason">其他原因</label>
+          <label for="studentName">學生姓名</label>
           <input
             type="text"
-            id="otherReason"
-            name="otherReason"
-            placeholder="請簡單說明"
+            id="studentName"
+            name="studentName"
+            placeholder="請填寫學生中文全名"
+            required
+            pattern="^[\u4e00-\u9fa5]{2,5}$"
+            title="請填寫學生中文全名，限 2～5 個中文字"
           >
+          <div class="hint">請填寫學生中文全名，例如：王小明。</div>
+
+          <label for="grade">就讀年級</label>
+          <select id="grade" name="grade" required>
+            <option value="">請選擇年級</option>
+            <option value="一年級">一年級</option>
+            <option value="二年級">二年級</option>
+            <option value="三年級">三年級</option>
+            <option value="四年級">四年級</option>
+            <option value="五年級">五年級</option>
+            <option value="六年級">六年級</option>
+          </select>
+
+          <label for="leaveDate">請假日期</label>
+          <input
+            type="text"
+            id="leaveDate"
+            name="leaveDate"
+            placeholder="請選擇一個或多個日期"
+            required
+            readonly
+          >
+          <div class="hint">可一次選擇多個日期。</div>
+
+          <label>請假班別</label>
+          <div class="options three">
+            <label class="option">
+              <input type="checkbox" class="class-checkbox" value="課輔">
+              <span>課輔</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="class-checkbox" value="英文">
+              <span>英文</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="class-checkbox" value="才藝">
+              <span>才藝</span>
+            </label>
+          </div>
+          <div class="hint">可複選。</div>
+
+          <label>請假原因</label>
+          <div class="options three">
+            <label class="option">
+              <input type="radio" name="reason" value="病假" required>
+              <span>病假</span>
+            </label>
+
+            <label class="option">
+              <input type="radio" name="reason" value="事假">
+              <span>事假</span>
+            </label>
+
+            <label class="option">
+              <input type="radio" name="reason" value="其他">
+              <span>其他</span>
+            </label>
+          </div>
+
+          <div id="healthBox" class="section-box hidden">
+            <div class="section-title">身體狀況</div>
+            <div class="section-desc">
+              可複選；若方便填寫，請協助老師掌握照顧與班級健康狀況。
+            </div>
+
+            <div class="options two">
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="發燒">
+                <span>發燒</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="咳嗽">
+                <span>咳嗽</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="嘔吐">
+                <span>嘔吐</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="拉肚子">
+                <span>拉肚子</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="喉嚨痛">
+                <span>喉嚨痛</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="頭痛">
+                <span>頭痛</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="感冒">
+                <span>感冒</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="流感">
+                <span>流感</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="腸病毒">
+                <span>腸病毒</span>
+              </label>
+
+              <label class="option">
+                <input type="checkbox" class="health-checkbox" value="水痘">
+                <span>水痘</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="otherReasonBox" class="hidden">
+            <label for="otherReason">其他原因</label>
+            <input
+              type="text"
+              id="otherReason"
+              name="otherReason"
+              placeholder="請簡單說明"
+            >
+          </div>
+
+          <label for="note">備註</label>
+          <textarea
+            id="note"
+            name="note"
+            placeholder="可填寫補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
+          ></textarea>
+
+          <button type="submit" id="submitBtn">送出請假申請</button>
+
+          <div id="message" class="message"></div>
+
+          <div class="note">
+            若有緊急狀況，請另行與校方聯繫。
+          </div>
+        </form>
+      </div>
+
+      <div id="successScreen" class="success-screen hidden">
+        <div class="success-icon">✅</div>
+
+        <div class="success-title">請假申請已送出</div>
+
+        <div class="success-text">
+          老師已收到請假資料，<br>
+          會協助登記與後續處理。
         </div>
 
-        <label for="note">備註</label>
-        <textarea
-          id="note"
-          name="note"
-          placeholder="可填寫補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
-        ></textarea>
-
-        <button type="submit" id="submitBtn">送出請假申請</button>
-
-        <div id="message" class="message"></div>
-
-        <div class="note">
-          若有緊急狀況，請另行與校方聯繫。
+        <div class="success-reminder">
+          如有臨時接送、緊急狀況或需立即聯繫老師，<br>
+          請再透過原聯絡方式通知校方。
         </div>
-      </form>
+
+        <button type="button" onclick="backToForm()">填寫下一筆請假</button>
+      </div>
+
     </div>
   </div>
 
@@ -379,7 +440,7 @@
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycby5kAHFFLMQK1nd1qluGtzCeQvFNtysrYoQylBQMpMrtz8FMkB1UuOy-ulrAZMalCfGlQ/exec";
 
-    flatpickr("#leaveDate", {
+    const datePicker = flatpickr("#leaveDate", {
       mode: "multiple",
       dateFormat: "Y-m-d",
       locale: "zh_tw",
@@ -387,10 +448,16 @@
       minDate: "today"
     });
 
+    const formScreen = document.getElementById("formScreen");
+    const successScreen = document.getElementById("successScreen");
+
     const form = document.getElementById("leaveForm");
     const studentNameInput = document.getElementById("studentName");
     const submitBtn = document.getElementById("submitBtn");
     const message = document.getElementById("message");
+
+    const classTypeInput = document.getElementById("classType");
+    const classCheckboxes = document.querySelectorAll(".class-checkbox");
 
     const healthBox = document.getElementById("healthBox");
     const healthStatusInput = document.getElementById("healthStatus");
@@ -398,6 +465,22 @@
 
     const otherReasonBox = document.getElementById("otherReasonBox");
     const otherReasonInput = document.getElementById("otherReason");
+
+    function updateClassType() {
+      const selectedClasses = Array.from(classCheckboxes)
+        .filter(function(item) {
+          return item.checked;
+        })
+        .map(function(item) {
+          return item.value;
+        });
+
+      classTypeInput.value = selectedClasses.join("、");
+    }
+
+    classCheckboxes.forEach(function(checkbox) {
+      checkbox.addEventListener("change", updateClassType);
+    });
 
     document.querySelectorAll('input[name="reason"]').forEach(function(input) {
       input.addEventListener("change", function() {
@@ -436,11 +519,44 @@
       });
     });
 
+    function resetAllFields() {
+      form.reset();
+      datePicker.clear();
+
+      classTypeInput.value = "";
+      healthStatusInput.value = "";
+
+      healthBox.classList.add("hidden");
+      otherReasonBox.classList.add("hidden");
+      otherReasonInput.required = false;
+
+      message.textContent = "";
+      message.className = "message";
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = "送出請假申請";
+    }
+
+    function showSuccessScreen() {
+      formScreen.classList.add("hidden");
+      successScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function backToForm() {
+      resetAllFields();
+      successScreen.classList.add("hidden");
+      formScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
       message.textContent = "";
       message.className = "message";
+
+      updateClassType();
 
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -455,6 +571,11 @@
         return;
       }
 
+      if (!classTypeInput.value) {
+        alert("請至少選擇一項請假班別。");
+        return;
+      }
+
       submitBtn.disabled = true;
       submitBtn.textContent = "送出中...";
 
@@ -466,25 +587,10 @@
         body: formData
       });
 
-      message.textContent = "✅ 請假申請已送出，謝謝您。";
-      message.classList.add("success");
-
-      form.reset();
-
-      healthBox.classList.add("hidden");
-      healthStatusInput.value = "";
-
-      healthCheckboxes.forEach(function(checkbox) {
-        checkbox.checked = false;
-      });
-
-      otherReasonBox.classList.add("hidden");
-      otherReasonInput.required = false;
-
       setTimeout(function() {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "送出請假申請";
-      }, 1200);
+        resetAllFields();
+        showSuccessScreen();
+      }, 500);
     });
   </script>
 </body>
