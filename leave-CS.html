@@ -169,6 +169,10 @@
       color: #16834a;
     }
 
+    .error {
+      color: #c0392b;
+    }
+
     .note {
       margin-top: 18px;
       font-size: 13px;
@@ -228,9 +232,12 @@
           type="text"
           id="studentName"
           name="studentName"
-          placeholder="請輸入學生姓名"
+          placeholder="請填寫學生中文全名"
           required
+          pattern="^[\u4e00-\u9fa5]{2,5}$"
+          title="請填寫學生中文全名，限 2～5 個中文字"
         >
+        <div class="hint">請填寫學生中文全名，例如：王小明。</div>
 
         <label for="leaveDate">請假日期</label>
         <input
@@ -282,7 +289,7 @@
         <div id="healthBox" class="section-box hidden">
           <div class="section-title">身體狀況</div>
           <div class="section-desc">
-            可複選，方便老師掌握照顧與班級健康狀況。
+            可複選；若方便填寫，請協助老師掌握照顧與班級健康狀況。
           </div>
 
           <div class="options two">
@@ -381,6 +388,7 @@
     });
 
     const form = document.getElementById("leaveForm");
+    const studentNameInput = document.getElementById("studentName");
     const submitBtn = document.getElementById("submitBtn");
     const message = document.getElementById("message");
 
@@ -439,10 +447,11 @@
         return;
       }
 
-      const selectedReason = document.querySelector('input[name="reason"]:checked');
+      const chineseNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
 
-      if (selectedReason && selectedReason.value === "病假" && healthStatusInput.value === "") {
-        alert("請至少勾選一項身體狀況。");
+      if (!chineseNamePattern.test(studentNameInput.value.trim())) {
+        alert("請填寫學生中文全名，限 2～5 個中文字。");
+        studentNameInput.focus();
         return;
       }
 
