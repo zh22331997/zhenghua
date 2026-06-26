@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>江翠校請假申請</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background: #f4f7fb;
+      color: #333;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: #1f5fa8;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin: 10px 0 20px;
+      line-height: 1.6;
+    }
+
+    .privacy-note {
+      background: #f0f6ff;
+      color: #395f8c;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 18px 0 8px;
+      font-size: 16px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #d8dee9;
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #1f5fa8;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .three {
+      grid-template-columns: 1fr;
+    }
+
+    .two {
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 520px) {
+      .three {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .two {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .option {
+      display: block;
+    }
+
+    .option input {
+      display: none;
+    }
+
+    .option span {
+      display: block;
+      text-align: center;
+      padding: 14px 10px;
+      border: 1px solid #d8dee9;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .option input:checked + span {
+      background: #1f5fa8;
+      color: #fff;
+      border-color: #1f5fa8;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 28px;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #1f5fa8;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    button:disabled {
+      background: #9aa9bd;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 700;
+      line-height: 1.6;
+      min-height: 24px;
+    }
+
+    .message.error {
+      color: #c0392b;
+    }
+
+    .message.sending {
+      color: #395f8c;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #777;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #777;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .section-box {
+      margin-top: 14px;
+      padding: 14px;
+      background: #fafbfd;
+      border: 1px solid #e5e9f0;
+      border-radius: 14px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .success-screen {
+      text-align: center;
+      padding: 18px 4px;
+    }
+
+    .success-icon {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+
+    .success-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #16834a;
+      margin-bottom: 10px;
+    }
+
+    .success-text {
+      color: #555;
+      line-height: 1.8;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .success-reminder {
+      background: #f0f6ff;
+      color: #395f8c;
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
+
+    iframe {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="card">
+
+      <div id="formScreen">
+        <h1>江翠校請假申請</h1>
+
+        <div class="subtitle">
+          請填寫以下資料，送出後老師會協助登記。
+        </div>
+
+        <div class="privacy-note">
+          本表單僅供請假登記與學生照顧使用，資料不作其他用途。
+        </div>
+
+        <form id="leaveForm" method="POST" target="gasFrame">
+          <input type="hidden" id="classType" name="classType" value="">
+          <input type="hidden" id="healthStatus" name="healthStatus" value="">
+          <input type="hidden" id="clientToken" name="clientToken" value="">
+
+          <label for="studentName">學生姓名</label>
+          <input
+            type="text"
+            id="studentName"
+            name="studentName"
+            placeholder="請填寫學生中文全名"
+            required
+            pattern="^[\u4e00-\u9fa5]{2,5}$"
+            title="請填寫學生中文全名，限 2～5 個中文字"
+          >
+          <div class="hint">請填寫學生中文全名，例如：王小明。</div>
+
+          <label for="grade">就讀年級</label>
+          <select id="grade" name="grade" required>
+            <option value="">請選擇年級</option>
+            <option value="一年級">一年級</option>
+            <option value="二年級">二年級</option>
+            <option value="三年級">三年級</option>
+            <option value="四年級">四年級</option>
+            <option value="五年級">五年級</option>
+            <option value="六年級">六年級</option>
+          </select>
+
+          <label for="leaveDate">請假日期</label>
+          <input
+            type="text"
+            id="leaveDate"
+            name="leaveDate"
+            placeholder="請選擇一個或多個日期"
+            required
+            readonly
+          >
+          <div class="hint">可一次選擇多個日期。</div>
+
+          <label>請假班別</label>
+          <div class="options three">
+            <label class="option">
+              <input type="checkbox" class="class-checkbox" value="課輔">
+              <span>課輔</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="class-checkbox" value="英文">
+              <span>英文</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="class-checkbox" value="才藝">
+              <span>才藝</span>
+            </label>
+          </div>
+          <div class="hint">可複選。</div>
+
+          <label>請假原因</label>
+          <div class="options three">
+            <label class="option">
+              <input type="radio" name="reason" value="病假" required>
+              <span>病假</span>
+            </label>
+
+            <label class="option">
+              <input type="radio" name="reason" value="事假">
+              <span>事假</span>
+            </label>
+
+            <label class="option">
+              <input type="radio" name="reason" value="其他">
+              <span>其他</span>
+            </label>
+          </div>
+
+          <div id="healthBox" class="section-box hidden">
+            <div class="section-title">身體狀況</div>
+            <div class="section-desc">
+              可複選；若方便填寫，請協助老師掌握照顧與班級健康狀況。
+            </div>
+
+            <div class="options two">
+              <label class="option"><input type="checkbox" class="health-checkbox" value="發燒"><span>發燒</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="咳嗽"><span>咳嗽</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="嘔吐"><span>嘔吐</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="拉肚子"><span>拉肚子</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="喉嚨痛"><span>喉嚨痛</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="頭痛"><span>頭痛</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="感冒"><span>感冒</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="流感"><span>流感</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="腸病毒"><span>腸病毒</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="水痘"><span>水痘</span></label>
+            </div>
+          </div>
+
+          <div id="otherReasonBox" class="hidden">
+            <label for="otherReason">其他原因</label>
+            <input
+              type="text"
+              id="otherReason"
+              name="otherReason"
+              placeholder="請簡單說明"
+            >
+          </div>
+
+          <label for="note">備註</label>
+          <textarea
+            id="note"
+            name="note"
+            placeholder="可填寫補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
+          ></textarea>
+
+          <button type="submit" id="submitBtn">送出請假申請</button>
+
+          <div id="message" class="message"></div>
+
+          <div class="note">
+            若有緊急狀況，請另行與校方聯繫。
+          </div>
+        </form>
+      </div>
+
+      <div id="successScreen" class="success-screen hidden">
+        <div class="success-icon">✅</div>
+
+        <div class="success-title">請假申請已送出</div>
+
+        <div class="success-text">
+          老師已收到請假資料，<br>
+          會協助登記與後續處理。
+        </div>
+
+        <div class="success-reminder">
+          如有臨時接送、緊急狀況或需立即聯繫老師，<br>
+          請再透過原聯絡方式通知校方。
+        </div>
+
+        <button type="button" onclick="backToForm()">填寫下一筆請假</button>
+      </div>
+
+    </div>
+  </div>
+
+  <iframe id="gasFrame" name="gasFrame"></iframe>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbylIRqsoR7owDQQjBfcRbrO50QaxMduL-xg7bmj2IZnDz2kLi5FYluc2-kScbtWuvU1rA/exec";
+
+    const datePicker = flatpickr("#leaveDate", {
+      mode: "multiple",
+      dateFormat: "Y-m-d",
+      locale: "zh_tw",
+      conjunction: "、",
+      minDate: "today"
+    });
+
+    const formScreen = document.getElementById("formScreen");
+    const successScreen = document.getElementById("successScreen");
+
+    const form = document.getElementById("leaveForm");
+    const studentNameInput = document.getElementById("studentName");
+    const submitBtn = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+
+    const classTypeInput = document.getElementById("classType");
+    const classCheckboxes = document.querySelectorAll(".class-checkbox");
+
+    const healthBox = document.getElementById("healthBox");
+    const healthStatusInput = document.getElementById("healthStatus");
+    const healthCheckboxes = document.querySelectorAll(".health-checkbox");
+
+    const otherReasonBox = document.getElementById("otherReasonBox");
+    const otherReasonInput = document.getElementById("otherReason");
+
+    const clientTokenInput = document.getElementById("clientToken");
+
+    let pendingToken = "";
+    let checkTimer = null;
+    let timeoutTimer = null;
+
+    form.action = GAS_URL;
+    form.method = "POST";
+    form.target = "gasFrame";
+
+    function createToken() {
+      return Date.now().toString() + "-" + Math.random().toString(36).slice(2);
+    }
+
+    function updateClassType() {
+      const selectedClasses = Array.from(classCheckboxes)
+        .filter(function(item) {
+          return item.checked;
+        })
+        .map(function(item) {
+          return item.value;
+        });
+
+      classTypeInput.value = selectedClasses.join("、");
+    }
+
+    function updateHealthStatus() {
+      const selectedHealth = Array.from(healthCheckboxes)
+        .filter(function(item) {
+          return item.checked;
+        })
+        .map(function(item) {
+          return item.value;
+        });
+
+      healthStatusInput.value = selectedHealth.join("、");
+    }
+
+    classCheckboxes.forEach(function(checkbox) {
+      checkbox.addEventListener("change", updateClassType);
+    });
+
+    healthCheckboxes.forEach(function(checkbox) {
+      checkbox.addEventListener("change", updateHealthStatus);
+    });
+
+    document.querySelectorAll('input[name="reason"]').forEach(function(input) {
+      input.addEventListener("change", function() {
+        if (this.value === "病假") {
+          healthBox.classList.remove("hidden");
+        } else {
+          healthBox.classList.add("hidden");
+          healthCheckboxes.forEach(function(checkbox) {
+            checkbox.checked = false;
+          });
+          healthStatusInput.value = "";
+        }
+
+        if (this.value === "其他") {
+          otherReasonBox.classList.remove("hidden");
+          otherReasonInput.required = true;
+        } else {
+          otherReasonBox.classList.add("hidden");
+          otherReasonInput.required = false;
+          otherReasonInput.value = "";
+        }
+      });
+    });
+
+    function resetAllFields() {
+      form.reset();
+      datePicker.clear();
+
+      classTypeInput.value = "";
+      healthStatusInput.value = "";
+      clientTokenInput.value = "";
+
+      healthBox.classList.add("hidden");
+      otherReasonBox.classList.add("hidden");
+      otherReasonInput.required = false;
+
+      message.textContent = "";
+      message.className = "message";
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = "送出請假申請";
+
+      pendingToken = "";
+    }
+
+    function showSuccessScreen() {
+      formScreen.classList.add("hidden");
+      successScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function backToForm() {
+      resetAllFields();
+      successScreen.classList.add("hidden");
+      formScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showSending(text) {
+      message.textContent = text;
+      message.className = "message sending";
+    }
+
+    function showError(text) {
+      message.textContent = text;
+      message.className = "message error";
+    }
+
+    function stopChecking() {
+      if (checkTimer) {
+        clearTimeout(checkTimer);
+        checkTimer = null;
+      }
+
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer);
+        timeoutTimer = null;
+      }
+    }
+
+    function finishSubmitState() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "重新送出";
+    }
+
+    function checkWriteStatus() {
+      if (!pendingToken) {
+        return;
+      }
+
+      const callbackName = "leaveFormCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+
+      window[callbackName] = function(result) {
+        try {
+          delete window[callbackName];
+        } catch (err) {
+          window[callbackName] = undefined;
+        }
+
+        const oldScript = document.getElementById(callbackName);
+        if (oldScript) {
+          oldScript.remove();
+        }
+
+        if (!result) {
+          scheduleNextCheck();
+          return;
+        }
+
+        if (result.done === true && result.success === true) {
+          stopChecking();
+          resetAllFields();
+          showSuccessScreen();
+          return;
+        }
+
+        if (result.done === true && result.success === false) {
+          stopChecking();
+          showError("送出失敗：" + (result.message || "系統寫入失敗，請重新送出或直接聯絡校方。"));
+          finishSubmitState();
+          return;
+        }
+
+        scheduleNextCheck();
+      };
+
+      const script = document.createElement("script");
+      script.id = callbackName;
+      script.src =
+        GAS_URL +
+        "?action=check" +
+        "&clientToken=" + encodeURIComponent(pendingToken) +
+        "&callback=" + encodeURIComponent(callbackName) +
+        "&_=" + Date.now();
+
+      script.onerror = function() {
+        try {
+          delete window[callbackName];
+        } catch (err) {
+          window[callbackName] = undefined;
+        }
+
+        const oldScript = document.getElementById(callbackName);
+        if (oldScript) {
+          oldScript.remove();
+        }
+
+        scheduleNextCheck();
+      };
+
+      document.body.appendChild(script);
+    }
+
+    function scheduleNextCheck() {
+      checkTimer = setTimeout(function() {
+        checkWriteStatus();
+      }, 2000);
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      message.textContent = "";
+      message.className = "message";
+
+      updateClassType();
+      updateHealthStatus();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const chineseNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
+
+      if (!chineseNamePattern.test(studentNameInput.value.trim())) {
+        alert("請填寫學生中文全名，限 2～5 個中文字。");
+        studentNameInput.focus();
+        return;
+      }
+
+      if (!classTypeInput.value) {
+        alert("請至少選擇一項請假班別。");
+        return;
+      }
+
+      if (!clientTokenInput.value) {
+        clientTokenInput.value = createToken();
+      }
+
+      pendingToken = clientTokenInput.value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "送出中...";
+      showSending("資料送出中，系統正在確認是否成功寫入，請勿關閉頁面。");
+
+      stopChecking();
+
+      HTMLFormElement.prototype.submit.call(form);
+
+      checkTimer = setTimeout(function() {
+        checkWriteStatus();
+      }, 2000);
+
+      timeoutTimer = setTimeout(function() {
+        stopChecking();
+
+        showError("系統尚未確認是否成功寫入。請先不要重複送出，建議直接聯絡校方確認；若校方查無資料，再按「重新送出」。");
+
+        finishSubmitState();
+      }, 45000);
+    });
+  </script>
+</body>
+</html>
