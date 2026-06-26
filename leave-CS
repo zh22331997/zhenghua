@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>清水校請假申請</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background: #f4f7fb;
+      color: #333;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: #1f5fa8;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin: 10px 0 20px;
+      line-height: 1.6;
+    }
+
+    .privacy-note {
+      background: #f0f6ff;
+      color: #395f8c;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 18px 0 8px;
+      font-size: 16px;
+    }
+
+    input, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #d8dee9;
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #1f5fa8;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .three {
+      grid-template-columns: 1fr;
+    }
+
+    .two {
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 520px) {
+      .three {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .two {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .option {
+      display: block;
+    }
+
+    .option input {
+      display: none;
+    }
+
+    .option span {
+      display: block;
+      text-align: center;
+      padding: 14px 10px;
+      border: 1px solid #d8dee9;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .option input:checked + span {
+      background: #1f5fa8;
+      color: #fff;
+      border-color: #1f5fa8;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 28px;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #1f5fa8;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #9aa9bd;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .success {
+      color: #16834a;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #777;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #777;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .section-box {
+      margin-top: 14px;
+      padding: 14px;
+      background: #fafbfd;
+      border: 1px solid #e5e9f0;
+      border-radius: 14px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>清水校請假申請</h1>
+
+      <div class="subtitle">
+        請填寫以下資料，送出後老師會協助登記。
+      </div>
+
+      <div class="privacy-note">
+        本表單僅供請假登記與學生照顧使用，資料不作其他用途。
+      </div>
+
+      <form id="leaveForm">
+        <input type="hidden" id="healthStatus" name="healthStatus" value="">
+
+        <label for="studentName">學生姓名</label>
+        <input
+          type="text"
+          id="studentName"
+          name="studentName"
+          placeholder="請輸入學生姓名"
+          required
+        >
+
+        <label for="leaveDate">請假日期</label>
+        <input
+          type="text"
+          id="leaveDate"
+          name="leaveDate"
+          placeholder="請選擇一個或多個日期"
+          required
+          readonly
+        >
+        <div class="hint">可一次選擇多個日期。</div>
+
+        <label>請假班別</label>
+        <div class="options three">
+          <label class="option">
+            <input type="radio" name="classType" value="課輔" required>
+            <span>課輔</span>
+          </label>
+
+          <label class="option">
+            <input type="radio" name="classType" value="英文">
+            <span>英文</span>
+          </label>
+
+          <label class="option">
+            <input type="radio" name="classType" value="課輔＋英文">
+            <span>課輔＋英文</span>
+          </label>
+        </div>
+
+        <label>請假原因</label>
+        <div class="options three">
+          <label class="option">
+            <input type="radio" name="reason" value="病假" required>
+            <span>病假</span>
+          </label>
+
+          <label class="option">
+            <input type="radio" name="reason" value="事假">
+            <span>事假</span>
+          </label>
+
+          <label class="option">
+            <input type="radio" name="reason" value="其他">
+            <span>其他</span>
+          </label>
+        </div>
+
+        <div id="healthBox" class="section-box hidden">
+          <div class="section-title">身體狀況</div>
+          <div class="section-desc">
+            可複選，方便老師掌握照顧與班級健康狀況。
+          </div>
+
+          <div class="options two">
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="發燒">
+              <span>發燒</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="咳嗽">
+              <span>咳嗽</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="嘔吐">
+              <span>嘔吐</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="拉肚子">
+              <span>拉肚子</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="喉嚨痛">
+              <span>喉嚨痛</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="頭痛">
+              <span>頭痛</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="感冒">
+              <span>感冒</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="流感">
+              <span>流感</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="腸病毒">
+              <span>腸病毒</span>
+            </label>
+
+            <label class="option">
+              <input type="checkbox" class="health-checkbox" value="水痘">
+              <span>水痘</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="otherReasonBox" class="hidden">
+          <label for="otherReason">其他原因</label>
+          <input
+            type="text"
+            id="otherReason"
+            name="otherReason"
+            placeholder="請簡單說明"
+          >
+        </div>
+
+        <label for="note">備註</label>
+        <textarea
+          id="note"
+          name="note"
+          placeholder="可填寫補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
+        ></textarea>
+
+        <button type="submit" id="submitBtn">送出請假申請</button>
+
+        <div id="message" class="message"></div>
+
+        <div class="note">
+          若有緊急狀況，請另行與校方聯繫。
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby5kAHFFLMQK1nd1qluGtzCeQvFNtysrYoQylBQMpMrtz8FMkB1UuOy-ulrAZMalCfGlQ/exec";
+
+    flatpickr("#leaveDate", {
+      mode: "multiple",
+      dateFormat: "Y-m-d",
+      locale: "zh_tw",
+      conjunction: "、",
+      minDate: "today"
+    });
+
+    const form = document.getElementById("leaveForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+
+    const healthBox = document.getElementById("healthBox");
+    const healthStatusInput = document.getElementById("healthStatus");
+    const healthCheckboxes = document.querySelectorAll(".health-checkbox");
+
+    const otherReasonBox = document.getElementById("otherReasonBox");
+    const otherReasonInput = document.getElementById("otherReason");
+
+    document.querySelectorAll('input[name="reason"]').forEach(function(input) {
+      input.addEventListener("change", function() {
+        if (this.value === "病假") {
+          healthBox.classList.remove("hidden");
+        } else {
+          healthBox.classList.add("hidden");
+          healthCheckboxes.forEach(function(checkbox) {
+            checkbox.checked = false;
+          });
+          healthStatusInput.value = "";
+        }
+
+        if (this.value === "其他") {
+          otherReasonBox.classList.remove("hidden");
+          otherReasonInput.required = true;
+        } else {
+          otherReasonBox.classList.add("hidden");
+          otherReasonInput.required = false;
+          otherReasonInput.value = "";
+        }
+      });
+    });
+
+    healthCheckboxes.forEach(function(checkbox) {
+      checkbox.addEventListener("change", function() {
+        const selectedHealth = Array.from(healthCheckboxes)
+          .filter(function(item) {
+            return item.checked;
+          })
+          .map(function(item) {
+            return item.value;
+          });
+
+        healthStatusInput.value = selectedHealth.join("、");
+      });
+    });
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      message.textContent = "";
+      message.className = "message";
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const selectedReason = document.querySelector('input[name="reason"]:checked');
+
+      if (selectedReason && selectedReason.value === "病假" && healthStatusInput.value === "") {
+        alert("請至少勾選一項身體狀況。");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "送出中...";
+
+      const formData = new FormData(form);
+
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      });
+
+      message.textContent = "✅ 請假申請已送出，謝謝您。";
+      message.classList.add("success");
+
+      form.reset();
+
+      healthBox.classList.add("hidden");
+      healthStatusInput.value = "";
+
+      healthCheckboxes.forEach(function(checkbox) {
+        checkbox.checked = false;
+      });
+
+      otherReasonBox.classList.add("hidden");
+      otherReasonInput.required = false;
+
+      setTimeout(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "送出請假申請";
+      }, 1200);
+    });
+  </script>
+</body>
+</html>
