@@ -284,6 +284,17 @@
           >
           <div class="hint">請填寫學生中文全名，例如：王小明。</div>
 
+          <label for="englishName">英文名</label>
+          <input
+            type="text"
+            id="englishName"
+            name="englishName"
+            placeholder="可填寫英文名，例如 Amy"
+            pattern="^[A-Za-z][A-Za-z .'-]{0,29}$"
+            title="如有填寫英文名，請輸入英文，例如 Amy、Jason、Anne Marie"
+          >
+          <div class="hint">英文名為選填，沒有也可以留空。</div>
+
           <label for="grade">就讀年級</label>
           <select id="grade" name="grade" required>
             <option value="">請選擇年級</option>
@@ -432,6 +443,7 @@
 
     const form = document.getElementById("leaveForm");
     const studentNameInput = document.getElementById("studentName");
+    const englishNameInput = document.getElementById("englishName");
     const submitBtn = document.getElementById("submitBtn");
     const message = document.getElementById("message");
 
@@ -664,10 +676,19 @@
       }
 
       const chineseNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
+      const englishNamePattern = /^[A-Za-z][A-Za-z .'-]{0,29}$/;
 
       if (!chineseNamePattern.test(studentNameInput.value.trim())) {
         alert("請填寫學生中文全名，限 2～5 個中文字。");
         studentNameInput.focus();
+        return;
+      }
+
+      const englishNameValue = englishNameInput.value.trim();
+
+      if (englishNameValue && !englishNamePattern.test(englishNameValue)) {
+        alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne Marie；若沒有英文名可留空。");
+        englishNameInput.focus();
         return;
       }
 
