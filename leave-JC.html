@@ -272,28 +272,38 @@
           <input type="hidden" id="healthStatus" name="healthStatus" value="">
           <input type="hidden" id="clientToken" name="clientToken" value="">
 
-          <label for="studentName">學生中文全名／班級</label>
+          <label>學生姓名</label>
+
           <input
             type="text"
             id="studentName"
             name="studentName"
-            placeholder="請填寫中文全名，可加班級"
+            placeholder="中文全名，例如：王小明"
             required
-            pattern="^[\u4e00-\u9fa5]{2,5}(?:[\s　]*[0-9A-Za-z\u4e00-\u9fa5\-]{1,12})?$"
-            title="請填寫中文全名；如需補充班級，可寫在姓名後方，例如：王小明 ROA"
+            pattern="^[\u4e00-\u9fa5]{2,5}$"
+            title="請填寫學生中文全名，例如：王小明"
           >
-          <div class="hint">請填寫中文全名；班級可填可不填，例如：王小明、王小明 ROA。</div>
+          <div class="hint">請填寫孩子的中文全名，方便老師比對學生名單。</div>
 
-          <label for="englishName">英文名</label>
           <input
             type="text"
             id="englishName"
             name="englishName"
-            placeholder="可填寫英文名，例如 Amy"
+            placeholder="英文名，選填，例如：Jason"
             pattern="^[A-Za-z][A-Za-z .'-]{0,29}$"
-            title="如有填寫英文名，請輸入英文，例如 Amy、Jason、Anne Marie"
+            title="英文名為選填，例如 Amy、Jason、Anne"
+            style="margin-top: 10px;"
           >
-          <div class="hint">英文名為選填，沒有也可以留空。</div>
+          <div class="hint">英文名可填可不填，不知道可留空。</div>
+
+          <label for="parentClass">班級</label>
+          <input
+            type="text"
+            id="parentClass"
+            name="parentClass"
+            placeholder="選填，例如：3A、TA"
+          >
+          <div class="hint">班級可填可不填，不知道可留空。</div>
 
           <label for="leaveDate">請假日期</label>
           <input
@@ -304,7 +314,7 @@
             required
             readonly
           >
-          <div class="hint">可一次選擇多個日期。</div>
+          <div class="hint">可一次選擇多個日期，日期有變色才有選到。</div>
 
           <label>請假班別</label>
           <div class="options three">
@@ -351,11 +361,10 @@
 
             <div class="options two">
               <label class="option"><input type="checkbox" class="health-checkbox" value="發燒"><span>發燒</span></label>
-              <label class="option"><input type="checkbox" class="health-checkbox" value="咳嗽"><span>咳嗽</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="嘔吐"><span>嘔吐</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="拉肚子"><span>拉肚子</span></label>
-              <label class="option"><input type="checkbox" class="health-checkbox" value="喉嚨痛"><span>喉嚨痛</span></label>
-              <label class="option"><input type="checkbox" class="health-checkbox" value="頭痛"><span>頭痛</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="生理期"><span>生理期</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="諾羅"><span>諾羅</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="感冒"><span>感冒</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="流感"><span>流感</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="腸病毒"><span>腸病毒</span></label>
@@ -369,7 +378,7 @@
               type="text"
               id="otherReason"
               name="otherReason"
-              placeholder="請簡單說明"
+              placeholder="可補充說明"
             >
           </div>
 
@@ -377,7 +386,7 @@
           <textarea
             id="note"
             name="note"
-            placeholder="可填寫補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
+            placeholder="可補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
           ></textarea>
 
           <button type="submit" id="submitBtn">送出請假申請</button>
@@ -396,13 +405,13 @@
         <div class="success-title">請假申請已送出</div>
 
         <div class="success-text">
-          老師已收到請假資料，<br>
+          系統已收到請假資料，<br>
           會協助登記與後續處理。
         </div>
 
         <div class="success-reminder">
           如有臨時接送、緊急狀況或需立即聯繫老師，<br>
-          請再透過原聯絡方式通知校方。
+          請電話通知校方。
         </div>
 
         <button type="button" onclick="backToForm()">填寫下一筆請假</button>
@@ -417,7 +426,7 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbylIRqsoR7owDQQjBfcRbrO50QaxMduL-xg7bmj2IZnDz2kLi5FYluc2-kScbtWuvU1rA/exec";
+    const GAS_URL = "ttps://script.google.com/macros/s/AKfycbylIRqsoR7owDQQjBfcRbrO50QaxMduL-xg7bmj2IZnDz2kLi5FYluc2-kScbtWuvU1rA/exec";
 
     const datePicker = flatpickr("#leaveDate", {
       mode: "multiple",
@@ -433,6 +442,7 @@
     const form = document.getElementById("leaveForm");
     const studentNameInput = document.getElementById("studentName");
     const englishNameInput = document.getElementById("englishName");
+    const parentClassInput = document.getElementById("parentClass");
     const submitBtn = document.getElementById("submitBtn");
     const message = document.getElementById("message");
 
@@ -659,24 +669,28 @@
       updateClassType();
       updateHealthStatus();
 
+      studentNameInput.value = studentNameInput.value.trim();
+      englishNameInput.value = englishNameInput.value.trim();
+      parentClassInput.value = parentClassInput.value.trim();
+
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
       }
 
-      const studentNamePattern = /^[\u4e00-\u9fa5]{2,5}(?:[\s　]*[0-9A-Za-z\u4e00-\u9fa5\-]{1,12})?$/;
+      const studentNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
       const englishNamePattern = /^[A-Za-z][A-Za-z .'-]{0,29}$/;
 
-      if (!studentNamePattern.test(studentNameInput.value.trim())) {
-        alert("請填寫中文全名；如需補充班級，可寫在姓名後方，例如：王小明 301。");
+      if (!studentNamePattern.test(studentNameInput.value)) {
+        alert("請填寫學生中文全名，例如：王小明。");
         studentNameInput.focus();
         return;
       }
 
-      const englishNameValue = englishNameInput.value.trim();
+      const englishNameValue = englishNameInput.value;
 
       if (englishNameValue && !englishNamePattern.test(englishNameValue)) {
-        alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne Marie；若沒有英文名可留空。");
+        alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne；若沒有英文名可留空。");
         englishNameInput.focus();
         return;
       }
@@ -707,7 +721,7 @@
       timeoutTimer = setTimeout(function() {
         stopChecking();
 
-        showError("系統尚未確認是否成功寫入。請先不要重複送出，建議直接聯絡校方確認；若校方查無資料，再按「重新送出」。");
+        showError("系統尚未確認是否成功寫入，請先不要重複送出。若一直無法成功，可改用官方帳號請假。");
 
         finishSubmitState();
       }, 45000);
