@@ -272,28 +272,38 @@
           <input type="hidden" id="healthStatus" name="healthStatus" value="">
           <input type="hidden" id="clientToken" name="clientToken" value="">
 
-          <label for="studentName">學生中文全名／班級</label>
+          <label>學生姓名</label>
+
           <input
             type="text"
             id="studentName"
             name="studentName"
-            placeholder="請填寫中文全名，可加班級"
+            placeholder="中文全名，例如：王小明"
             required
-            pattern="^[\u4e00-\u9fa5]{2,5}(?:[\s　]*[0-9A-Za-z\u4e00-\u9fa5\-]{1,12})?$"
-            title="請填寫中文全名；如需補充班級，可寫在姓名後方，例如：王小明 3A"
+            pattern="^[\u4e00-\u9fa5]{2,5}$"
+            title="請填寫學生中文全名，例如：王小明"
           >
-          <div class="hint">請填寫中文全名；班級可填可不填，例如：王小明、王小明 3A。</div>
+          <div class="hint">請填寫孩子的中文全名，方便老師比對學生名單。</div>
 
-          <label for="englishName">英文名</label>
           <input
             type="text"
             id="englishName"
             name="englishName"
-            placeholder="可填寫英文名，例如 Amy"
+            placeholder="英文名，選填，例如：Amy"
             pattern="^[A-Za-z][A-Za-z .'-]{0,29}$"
-            title="如有填寫英文名，請輸入英文，例如 Amy、Jason、Anne Marie"
+            title="英文名為選填，例如 Amy、Jason、Anne Marie"
+            style="margin-top: 10px;"
           >
-          <div class="hint">英文名為選填，沒有也可以留空。</div>
+          <div class="hint">英文名可填可不填，不知道可留空。</div>
+
+          <label for="parentClass">班級</label>
+          <input
+            type="text"
+            id="parentClass"
+            name="parentClass"
+            placeholder="選填，例如：301、3A、MLA"
+          >
+          <div class="hint">班級可填可不填，不知道可以留空，系統會協助比對學生名單。</div>
 
           <label for="leaveDate">請假日期</label>
           <input
@@ -433,6 +443,7 @@
     const form = document.getElementById("leaveForm");
     const studentNameInput = document.getElementById("studentName");
     const englishNameInput = document.getElementById("englishName");
+    const parentClassInput = document.getElementById("parentClass");
     const submitBtn = document.getElementById("submitBtn");
     const message = document.getElementById("message");
 
@@ -659,21 +670,25 @@
       updateClassType();
       updateHealthStatus();
 
+      studentNameInput.value = studentNameInput.value.trim();
+      englishNameInput.value = englishNameInput.value.trim();
+      parentClassInput.value = parentClassInput.value.trim();
+
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
       }
 
-      const studentNamePattern = /^[\u4e00-\u9fa5]{2,5}(?:[\s　]*[0-9A-Za-z\u4e00-\u9fa5\-]{1,12})?$/;
+      const studentNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
       const englishNamePattern = /^[A-Za-z][A-Za-z .'-]{0,29}$/;
 
-      if (!studentNamePattern.test(studentNameInput.value.trim())) {
-        alert("請填寫中文全名；如需補充班級，可寫在姓名後方，例如：王小明 301。");
+      if (!studentNamePattern.test(studentNameInput.value)) {
+        alert("請填寫學生中文全名，例如：王小明。");
         studentNameInput.focus();
         return;
       }
 
-      const englishNameValue = englishNameInput.value.trim();
+      const englishNameValue = englishNameInput.value;
 
       if (englishNameValue && !englishNamePattern.test(englishNameValue)) {
         alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne Marie；若沒有英文名可留空。");
