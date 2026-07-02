@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>清水校請假申請</title>
+  <title>秀朗校請假申請</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
@@ -257,7 +257,7 @@
     <div class="card">
 
       <div id="formScreen">
-        <h1>清水校請假申請</h1>
+        <h1>秀朗校請假申請</h1>
 
         <div class="subtitle">
           請填寫以下資料，送出後老師會協助登記。
@@ -289,9 +289,9 @@
             type="text"
             id="englishName"
             name="englishName"
-            placeholder="英文名，選填，例如：Amy"
+            placeholder="英文名，選填，例如：Jason"
             pattern="^[A-Za-z][A-Za-z .'-]{0,29}$"
-            title="英文名為選填，例如 Amy、Jason、Anne Marie"
+            title="英文名為選填，例如 Amy、Jason、Anne"
             style="margin-top: 10px;"
           >
           <div class="hint">英文名可填可不填，不知道可留空。</div>
@@ -301,9 +301,9 @@
             type="text"
             id="parentClass"
             name="parentClass"
-            placeholder="選填，例如：301、3A、MLA"
+            placeholder="選填，例如：3A、TA"
           >
-          <div class="hint">班級可填可不填，不知道可以留空，系統會協助比對學生名單。</div>
+          <div class="hint">班級可填可不填，不知道可留空。</div>
 
           <label for="leaveDate">請假日期</label>
           <input
@@ -314,7 +314,7 @@
             required
             readonly
           >
-          <div class="hint">可一次選擇多個日期。</div>
+          <div class="hint">可一次選擇多個日期，日期有變色才有選到。</div>
 
           <label>請假班別</label>
           <div class="options three">
@@ -361,11 +361,10 @@
 
             <div class="options two">
               <label class="option"><input type="checkbox" class="health-checkbox" value="發燒"><span>發燒</span></label>
-              <label class="option"><input type="checkbox" class="health-checkbox" value="咳嗽"><span>咳嗽</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="嘔吐"><span>嘔吐</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="拉肚子"><span>拉肚子</span></label>
-              <label class="option"><input type="checkbox" class="health-checkbox" value="喉嚨痛"><span>喉嚨痛</span></label>
-              <label class="option"><input type="checkbox" class="health-checkbox" value="頭痛"><span>頭痛</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="生理期"><span>生理期</span></label>
+              <label class="option"><input type="checkbox" class="health-checkbox" value="諾羅"><span>諾羅</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="感冒"><span>感冒</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="流感"><span>流感</span></label>
               <label class="option"><input type="checkbox" class="health-checkbox" value="腸病毒"><span>腸病毒</span></label>
@@ -379,7 +378,7 @@
               type="text"
               id="otherReason"
               name="otherReason"
-              placeholder="請簡單說明"
+              placeholder="可補充說明"
             >
           </div>
 
@@ -387,7 +386,7 @@
           <textarea
             id="note"
             name="note"
-            placeholder="可填寫補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
+            placeholder="可補充說明，例如：晚點接、已看醫生、需請老師協助轉達等"
           ></textarea>
 
           <button type="submit" id="submitBtn">送出請假申請</button>
@@ -406,13 +405,13 @@
         <div class="success-title">請假申請已送出</div>
 
         <div class="success-text">
-          老師已收到請假資料，<br>
+          系統已收到請假資料，<br>
           會協助登記與後續處理。
         </div>
 
         <div class="success-reminder">
           如有臨時接送、緊急狀況或需立即聯繫老師，<br>
-          請再透過原聯絡方式通知校方。
+          請電話通知校方。
         </div>
 
         <button type="button" onclick="backToForm()">填寫下一筆請假</button>
@@ -427,7 +426,7 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwlkh0DQOEt78Byn7WsyOv7shgDV25zWpmAoO1hd0nIXdHe6AgM6bTca9urO8U-nF8/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzDoCk44Tnm3TDfZxVJRjXe-fRqW_Huey1uA4xWFHkJkcqnTLDwdwYCdU8LGKG2QkyI/exec";
 
     const datePicker = flatpickr("#leaveDate", {
       mode: "multiple",
@@ -691,7 +690,7 @@
       const englishNameValue = englishNameInput.value;
 
       if (englishNameValue && !englishNamePattern.test(englishNameValue)) {
-        alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne Marie；若沒有英文名可留空。");
+        alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne；若沒有英文名可留空。");
         englishNameInput.focus();
         return;
       }
@@ -722,7 +721,7 @@
       timeoutTimer = setTimeout(function() {
         stopChecking();
 
-        showError("系統尚未確認是否成功寫入。請先不要重複送出，建議直接聯絡校方確認；若校方查無資料，再按「重新送出」。");
+        showError("系統尚未確認是否成功寫入，請先不要重複送出。若一直無法成功，可改用官方帳號請假。");
 
         finishSubmitState();
       }, 45000);
