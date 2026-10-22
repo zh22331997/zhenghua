@@ -290,7 +290,7 @@
             id="englishName"
             name="englishName"
             placeholder="英文名，選填，例如：Jason"
-            pattern="^[A-Za-z][A-Za-z .'-]{0,29}$"
+            pattern="^[A-Za-z][A-Za-z .'\-]{0,29}$"
             title="英文名為選填，例如 Amy、Jason、Anne"
             style="margin-top: 10px;"
           >
@@ -426,306 +426,208 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyP4un4IQgCCOmoBdNKVjAMwkp1mdqJqZwhsHOi_LosrhPf3NuUWV-9CzLT6wkat_py/exec";
+// 替換原 HTML 最後一段 inline <script> 的內容；外部 flatpickr script 保留。
+// 沿用永平原部署網址；先更新原後端部署，再替換本頁。
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyP4un4IQgCCOmoBdNKVjAMwkp1mdqJqZwhsHOi_LosrhPf3NuUWV-9CzLT6wkat_py/exec';
+const datePicker = flatpickr('#leaveDate',{mode:'multiple',dateFormat:'Y-m-d',locale:'zh_tw',conjunction:'、',minDate:'today'});
+const form = document.getElementById('leaveForm');
+const submitBtn = document.getElementById('submitBtn');
+const message = document.getElementById('message');
+const keys = ['studentName','englishName','parentClass','leaveDate','classType','reason','healthStatus','otherReason','note'];
+const storageKey = 'YP_pending_v2';
+let pending = null;
+let lastPayload = null;
+let active = false;
+let generation = 0;
+let nextTimer = null;
+let overallTimer = null;
+let slowTimer = null;
+let cancelRequest = null;
+let started = 0;
+let metrics = [];
+form.action = GAS_URL;
+form.method = 'POST';
+form.target = 'gasFrame';
 
-    const datePicker = flatpickr("#leaveDate", {
-      mode: "multiple",
-      dateFormat: "Y-m-d",
-      locale: "zh_tw",
-      conjunction: "、",
-      minDate: "today"
-    });
+function tell(text,error=false) {
+  message.textContent = text;
+  message.className = error ? 'message error' : 'message sending';
+}
+function selection(selector) {
+  return Array.from(document.querySelectorAll(selector+':checked')).map(x => x.value).join('、');
+}
+function updateReason() {
+  const reason = form.querySelector('input[name="reason"]:checked')?.value || '';
+  document.getElementById('healthBox').classList.toggle('hidden',reason !== '病假');
+  document.getElementById('otherReasonBox').classList.toggle('hidden',reason !== '其他');
+  document.getElementById('otherReason').required = reason === '其他';
+  if (reason !== '病假') {
+    document.querySelectorAll('.health-checkbox').forEach(x => x.checked = false);
+    document.getElementById('healthStatus').value = '';
+  }
+  if (reason !== '其他') document.getElementById('otherReason').value = '';
+}
+document.querySelectorAll('input[name="reason"]').forEach(x => x.addEventListener('change',updateReason));
 
-    const formScreen = document.getElementById("formScreen");
-    const successScreen = document.getElementById("successScreen");
-
-    const form = document.getElementById("leaveForm");
-    const studentNameInput = document.getElementById("studentName");
-    const englishNameInput = document.getElementById("englishName");
-    const parentClassInput = document.getElementById("parentClass");
-    const submitBtn = document.getElementById("submitBtn");
-    const message = document.getElementById("message");
-
-    const classTypeInput = document.getElementById("classType");
-    const classCheckboxes = document.querySelectorAll(".class-checkbox");
-
-    const healthBox = document.getElementById("healthBox");
-    const healthStatusInput = document.getElementById("healthStatus");
-    const healthCheckboxes = document.querySelectorAll(".health-checkbox");
-
-    const otherReasonBox = document.getElementById("otherReasonBox");
-    const otherReasonInput = document.getElementById("otherReason");
-
-    const clientTokenInput = document.getElementById("clientToken");
-
-    let pendingToken = "";
-    let checkTimer = null;
-    let timeoutTimer = null;
-
-    form.action = GAS_URL;
-    form.method = "POST";
-    form.target = "gasFrame";
-
-    function createToken() {
-      return Date.now().toString() + "-" + Math.random().toString(36).slice(2);
+async function payloadHash(d) {
+  const bytes = new TextEncoder().encode(JSON.stringify(keys.map(k => d[k])));
+  const digest = await crypto.subtle.digest('SHA-256',bytes);
+  return Array.from(new Uint8Array(digest),x => x.toString(16).padStart(2,'0')).join('');
+}
+function remember() {
+  // 只保存收件識別碼與摘要，不保存姓名、病況或完整請假內容。
+  try { sessionStorage.setItem(storageKey,JSON.stringify(pending)); } catch (_) {}
+}
+function clearPending() {
+  pending = null;
+  lastPayload = null;
+  try { sessionStorage.removeItem(storageKey); } catch (_) {}
+}
+function stopChecking() {
+  active = false;
+  generation++;
+  clearTimeout(nextTimer);
+  clearTimeout(overallTimer);
+  clearTimeout(slowTimer);
+  nextTimer = overallTimer = slowTimer = null;
+  if (cancelRequest) { cancelRequest(); cancelRequest = null; }
+}
+function enableRetry() {
+  submitBtn.disabled = false;
+  submitBtn.textContent = '再次確認上一筆';
+}
+function showSuccessScreen() {
+  const totalMs = Math.round(performance.now()-started);
+  stopChecking();
+  clearPending();
+  form.reset();
+  datePicker.clear();
+  updateReason();
+  document.getElementById('formScreen').classList.add('hidden');
+  document.getElementById('successScreen').classList.remove('hidden');
+  if (new URLSearchParams(location.search).get('diagnostic') === '1') {
+    let box = document.getElementById('JL_diagnostic');
+    if (!box) { box = document.createElement('pre'); box.id='JL_diagnostic'; box.style.whiteSpace='pre-wrap'; document.getElementById('successScreen').appendChild(box); }
+    box.textContent = JSON.stringify({note:'重新開頁時總時間只計算此次確認',totalMs,checks:metrics},null,2);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToForm() {
+  stopChecking();
+  clearPending();
+  form.reset();datePicker.clear();updateReason();
+  document.getElementById('clientToken').value='';
+  document.getElementById('classType').value='';
+  document.getElementById('healthStatus').value='';
+  message.textContent='';message.className='message';
+  submitBtn.disabled=false;submitBtn.textContent='送出請假申請';
+  document.getElementById('successScreen').classList.add('hidden');
+  document.getElementById('formScreen').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function scheduleCheck(delay=2000) {
+  if (!active) return;
+  clearTimeout(nextTimer);
+  nextTimer = setTimeout(checkWriteStatus,delay);
+}
+function checkWriteStatus() {
+  if (!active || !pending || cancelRequest) return;
+  const run = generation;
+  const token = pending.token;
+  const requestStarted = performance.now();
+  const callback = 'JL_callback_'+crypto.randomUUID().replace(/-/g,'');
+  const script = document.createElement('script');
+  let settled = false;
+  let timer;
+  function cleanup() {
+    clearTimeout(timer);script.remove();
+    window[callback]=function() {};
+    setTimeout(() => { delete window[callback]; },120000);
+    if (cancelRequest === cancel) cancelRequest=null;
+  }
+  function cancel() { if (!settled) { settled=true;cleanup(); } }
+  function finish(result,label) {
+    if (settled) return;
+    settled=true;cleanup();
+    if (!active || generation !== run || pending?.token !== token) return;
+    metrics.push({roundTripMs:Math.round(performance.now()-requestStarted),result:label});
+    if (result?.done === true && result.success === true) { showSuccessScreen();return; }
+    if (result?.done === true && result.success === false) {
+      stopChecking();tell(result.message || '請向校方確認原申請。',true);enableRetry();return;
     }
+    scheduleCheck();
+  }
+  cancelRequest=cancel;
+  window[callback]=r => finish(r,r?.success ? 'confirmed' : 'pending');
+  script.onerror=() => finish(null,'network_error');
+  const url=new URL(GAS_URL);
+  url.searchParams.set('action','check');url.searchParams.set('clientToken',token);
+  url.searchParams.set('payloadHash',pending.hash);url.searchParams.set('callback',callback);
+  url.searchParams.set('_',Date.now().toString());
+  script.src=url.toString();
+  timer=setTimeout(() => finish(null,'query_timeout'),20000);
+  document.body.appendChild(script);
+}
+function startChecking() {
+  stopChecking();active=true;started=performance.now();metrics=[];
+  submitBtn.disabled=true;submitBtn.textContent='正在確認登記…';
+  tell('正在送出並確認登記結果，請稍候，勿重複送出。');
+  scheduleCheck();
+  slowTimer=setTimeout(() => { if(active) tell('系統仍在確認登記結果，請勿重複填寫。'); },12000);
+  overallTimer=setTimeout(() => {
+    stopChecking();tell('尚未確認登記結果，資料可能已收到。可按「再次確認上一筆」，緊急請假請直接聯絡校方。',true);enableRetry();
+  },60000);
+}
+form.addEventListener('submit',async function(e) {
+  e.preventDefault();
+  if (active || submitBtn.disabled) return;
+  if (pending) { startChecking();return; } // 未確認前只查詢，不送另一份內容。
+  if (datePicker.selectedDates.length === 0) {
+    tell('請先選擇至少一天請假日期。',true);datePicker.open();return;
+  }
+  document.getElementById('classType').value=selection('.class-checkbox');
+  document.getElementById('healthStatus').value=selection('.health-checkbox');
+  ['studentName','englishName','parentClass','otherReason','note'].forEach(k => { document.getElementById(k).value=document.getElementById(k).value.trim(); });
+  if (!form.checkValidity()) { form.reportValidity();return; }
+  if (!document.getElementById('classType').value) { tell('請至少選擇一項請假班別。',true);return; }
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(GAS_URL)) {
+    tell('測試網址尚未設定，尚未送出資料。',true);return;
+  }
+  submitBtn.disabled=true;
+  try {
+    const data=Object.fromEntries(new FormData(form).entries());
+    const dates=data.leaveDate.split('、');
+    data.leaveDate=Array.from(new Set(dates)).sort().join('、');
+    if (data.reason !== '病假') data.healthStatus='';
+    if (data.reason !== '其他') data.otherReason='';
+    const token=crypto.randomUUID();
+    const hash=await payloadHash(data);
+    lastPayload={...data,clientToken:token};
+    pending={token,hash,createdAt:Date.now()};remember();
+    // 用送出快照建立暫時表單，避免 hash 計算期間修改欄位造成不一致。
+    const send=document.createElement('form');send.method='POST';send.action=GAS_URL;send.target='gasFrame';send.hidden=true;
+    Object.entries(lastPayload).forEach(([name,value]) => { const input=document.createElement('input');input.type='hidden';input.name=name;input.value=value;send.appendChild(input); });
+    document.body.appendChild(send);
+    startChecking();
+    HTMLFormElement.prototype.submit.call(send);
+    send.remove();
+  } catch (_) {
+    stopChecking();submitBtn.disabled=false;
+    tell(pending ? '尚未確認送出結果，請聯絡校方或再次確認上一筆。' : '瀏覽器無法啟動送出，尚未送出資料。請改用 Safari 或 Chrome。',true);
+    if (pending) enableRetry();
+  }
+});
+// 讓「再次確認」不被已清空的必填欄位擋住。
+submitBtn.addEventListener('click',function(e) {
+  if (pending && !active) { e.preventDefault();startChecking(); }
+});
+try {
+  const saved=JSON.parse(sessionStorage.getItem(storageKey)||'null');
+  if (saved && /^[A-Za-z0-9_-]{12,100}$/.test(saved.token) && /^[a-f0-9]{64}$/.test(saved.hash)) {
+    pending=saved;enableRetry();tell('有一筆尚未確認的申請，請按「再次確認上一筆」。');
+  }
+} catch (_) {}
 
-    function updateClassType() {
-      const selectedClasses = Array.from(classCheckboxes)
-        .filter(function(item) {
-          return item.checked;
-        })
-        .map(function(item) {
-          return item.value;
-        });
-
-      classTypeInput.value = selectedClasses.join("、");
-    }
-
-    function updateHealthStatus() {
-      const selectedHealth = Array.from(healthCheckboxes)
-        .filter(function(item) {
-          return item.checked;
-        })
-        .map(function(item) {
-          return item.value;
-        });
-
-      healthStatusInput.value = selectedHealth.join("、");
-    }
-
-    classCheckboxes.forEach(function(checkbox) {
-      checkbox.addEventListener("change", updateClassType);
-    });
-
-    healthCheckboxes.forEach(function(checkbox) {
-      checkbox.addEventListener("change", updateHealthStatus);
-    });
-
-    document.querySelectorAll('input[name="reason"]').forEach(function(input) {
-      input.addEventListener("change", function() {
-        if (this.value === "病假") {
-          healthBox.classList.remove("hidden");
-        } else {
-          healthBox.classList.add("hidden");
-          healthCheckboxes.forEach(function(checkbox) {
-            checkbox.checked = false;
-          });
-          healthStatusInput.value = "";
-        }
-
-        if (this.value === "其他") {
-          otherReasonBox.classList.remove("hidden");
-          otherReasonInput.required = true;
-        } else {
-          otherReasonBox.classList.add("hidden");
-          otherReasonInput.required = false;
-          otherReasonInput.value = "";
-        }
-      });
-    });
-
-    function resetAllFields() {
-      form.reset();
-      datePicker.clear();
-
-      classTypeInput.value = "";
-      healthStatusInput.value = "";
-      clientTokenInput.value = "";
-
-      healthBox.classList.add("hidden");
-      otherReasonBox.classList.add("hidden");
-      otherReasonInput.required = false;
-
-      message.textContent = "";
-      message.className = "message";
-
-      submitBtn.disabled = false;
-      submitBtn.textContent = "送出請假申請";
-
-      pendingToken = "";
-    }
-
-    function showSuccessScreen() {
-      formScreen.classList.add("hidden");
-      successScreen.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function backToForm() {
-      resetAllFields();
-      successScreen.classList.add("hidden");
-      formScreen.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function showSending(text) {
-      message.textContent = text;
-      message.className = "message sending";
-    }
-
-    function showError(text) {
-      message.textContent = text;
-      message.className = "message error";
-    }
-
-    function stopChecking() {
-      if (checkTimer) {
-        clearTimeout(checkTimer);
-        checkTimer = null;
-      }
-
-      if (timeoutTimer) {
-        clearTimeout(timeoutTimer);
-        timeoutTimer = null;
-      }
-    }
-
-    function finishSubmitState() {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "重新送出";
-    }
-
-    function checkWriteStatus() {
-      if (!pendingToken) {
-        return;
-      }
-
-      const callbackName = "leaveFormCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-
-      window[callbackName] = function(result) {
-        try {
-          delete window[callbackName];
-        } catch (err) {
-          window[callbackName] = undefined;
-        }
-
-        const oldScript = document.getElementById(callbackName);
-        if (oldScript) {
-          oldScript.remove();
-        }
-
-        if (!result) {
-          scheduleNextCheck();
-          return;
-        }
-
-        if (result.done === true && result.success === true) {
-          stopChecking();
-          resetAllFields();
-          showSuccessScreen();
-          return;
-        }
-
-        if (result.done === true && result.success === false) {
-          stopChecking();
-          showError("送出失敗：" + (result.message || "系統寫入失敗，請重新送出或直接聯絡校方。"));
-          finishSubmitState();
-          return;
-        }
-
-        scheduleNextCheck();
-      };
-
-      const script = document.createElement("script");
-      script.id = callbackName;
-      script.src =
-        GAS_URL +
-        "?action=check" +
-        "&clientToken=" + encodeURIComponent(pendingToken) +
-        "&callback=" + encodeURIComponent(callbackName) +
-        "&_=" + Date.now();
-
-      script.onerror = function() {
-        try {
-          delete window[callbackName];
-        } catch (err) {
-          window[callbackName] = undefined;
-        }
-
-        const oldScript = document.getElementById(callbackName);
-        if (oldScript) {
-          oldScript.remove();
-        }
-
-        scheduleNextCheck();
-      };
-
-      document.body.appendChild(script);
-    }
-
-    function scheduleNextCheck() {
-      checkTimer = setTimeout(function() {
-        checkWriteStatus();
-      }, 2000);
-    }
-
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      message.textContent = "";
-      message.className = "message";
-
-      updateClassType();
-      updateHealthStatus();
-
-      studentNameInput.value = studentNameInput.value.trim();
-      englishNameInput.value = englishNameInput.value.trim();
-      parentClassInput.value = parentClassInput.value.trim();
-
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
-
-      const studentNamePattern = /^[\u4e00-\u9fa5]{2,5}$/;
-      const englishNamePattern = /^[A-Za-z][A-Za-z .'-]{0,29}$/;
-
-      if (!studentNamePattern.test(studentNameInput.value)) {
-        alert("請填寫學生中文全名，例如：王小明。");
-        studentNameInput.focus();
-        return;
-      }
-
-      const englishNameValue = englishNameInput.value;
-
-      if (englishNameValue && !englishNamePattern.test(englishNameValue)) {
-        alert("英文名格式錯誤，請填寫英文，例如 Amy、Jason、Anne；若沒有英文名可留空。");
-        englishNameInput.focus();
-        return;
-      }
-
-      if (!classTypeInput.value) {
-        alert("請至少選擇一項請假班別。");
-        return;
-      }
-
-      if (!clientTokenInput.value) {
-        clientTokenInput.value = createToken();
-      }
-
-      pendingToken = clientTokenInput.value;
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "送出中...";
-      showSending("資料送出中，系統正在確認是否成功寫入，請勿關閉頁面。");
-
-      stopChecking();
-
-      HTMLFormElement.prototype.submit.call(form);
-
-      checkTimer = setTimeout(function() {
-        checkWriteStatus();
-      }, 2000);
-
-      timeoutTimer = setTimeout(function() {
-        stopChecking();
-
-        showError("系統尚未確認是否成功寫入，請先不要重複送出。若一直無法成功，可改用官方帳號請假。");
-
-        finishSubmitState();
-      }, 45000);
-    });
   </script>
 </body>
 </html>
