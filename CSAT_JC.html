@@ -3,7 +3,7 @@
 
 </style></head><body><main class="shell"><div class="mast">正華學苑 × 佳音英語 <small id="step"></small></div><div class="meter"><div id="meterFill"></div></div><div id="page"><div class="panel">正在載入問卷…</div></div><p id="status" role="status" aria-live="polite"></p></main><script>
 // 貼上 Apps Script 正式部署的 /exec 網址（不是 /dev）。
-window.SURVEY_API_URL = '';
+window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbx7hdtYN_3Nii6q8bWcb4X_9mqTolcaFPumYZUziL0WkI3PvbyDZ15nW10finLUbkun/exec';
 
 </script><script>
 'use strict';
@@ -90,7 +90,7 @@ window.addEventListener('message',event=>{const x=event.data;if(!posting||!x||x.
  if(!/^https:\/\/(script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin))return;
  posting=false;if(x.ok){localStorage.removeItem(STORE);$('meterFill').style.width='100%';$('step').textContent='完成';$('page').innerHTML=`<div class="panel"><h1>${escapeHtml(config.settings['送出成功標題']||'問卷已送出')}</h1><div class="copy">${escapeHtml(config.settings['送出成功感謝文字']||'感謝您的回饋！')}</div></div>`;$('status').textContent='';window.scrollTo(0,0)}else{$('status').textContent=x.message||'送出失敗，請重試';$('next').disabled=false}
 });
-function load(){if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API)){$('page').innerHTML='<div class="panel"><h1>尚未完成網站設定</h1><p>請先在 config.js 填入 Apps Script 正式部署的 /exec 網址。</p></div>';return}
+function load(){if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API)){$('page').innerHTML='<div class="panel"><h1>尚未完成網站設定</h1><p>請確認 Apps Script 的部署與存取權限設定。</p></div>';return}
  const cb='surveycb'+Date.now();const script=document.createElement('script');let done=false;
  const fail=()=>{if(done)return;done=true;delete window[cb];$('page').innerHTML='<div class="panel"><h1>問卷暫時無法載入</h1><p>請稍後重新整理頁面，或通知學校。</p></div>'};
  window[cb]=data=>{if(done)return;done=true;delete window[cb];script.remove();if(!data.ok){fail();return}config=data;read();if(config.settings['問卷狀態']!=='開放'){$('page').innerHTML='<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';return}render()};
