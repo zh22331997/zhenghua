@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -23,6 +22,15 @@ h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}
 .field{border-top:1px solid #e4ece9;padding:19px 0}
 .field:first-of-type{border-top:0}
 .qtitle{font-size:19px;font-weight:700;margin-bottom:9px}
+/* 清楚的問卷題號與分題區塊 */
+.qtitle{display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;margin-bottom:13px;line-height:1.5}
+.qbadge{display:inline-flex;align-items:center;justify-content:center;min-width:47px;padding:4px 10px;border-radius:8px;background:#285c4f;color:#fff;font-size:15px;font-weight:800;letter-spacing:.3px;flex-shrink:0}
+.qtext{flex:1;min-width:180px}
+.field[data-q]{margin:15px 0;padding:18px 15px;border:1px solid #dfebe6;border-left:4px solid #85b8a3;border-radius:13px;background:#fbfdfc}
+.field[data-q]:first-of-type{border-top:1px solid #dfebe6}
+.field[data-q] + .field[data-q]{margin-top:20px}
+@media(max-width:420px){.field[data-q]{padding:16px 12px}.qtitle{font-size:18px}.qtext{min-width:150px}}
+
 .hint,.caption{color:#667a78;font-size:14px;margin-bottom:10px}
 .required{color:#b54747;font-size:13px;margin-left:6px}
 .options{display:grid;gap:8px}
@@ -149,7 +157,8 @@ function inputQuestion(q){
  const isOther=q.type.includes('其他');
  const comment=q.type.includes('備註');
  let html=`<section class="field" data-q="${escapeHtml(q.id)}">
- <div class="qtitle">${escapeHtml(q.title)}
+ <div class="qtitle"><span class="qbadge">${escapeHtml(q.id)}</span><span class="qtext">${escapeHtml(q.title)}</span>
+</span>
  ${q.required?'<span class="required">＊必填</span>':''}
  </div>
  ${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
