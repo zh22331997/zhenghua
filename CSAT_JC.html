@@ -1,102 +1,478 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>江翠校家長意見調查表</title><style>
-*{box-sizing:border-box}html,body{margin:0;background:#f3f5f7;color:#1a292b;font-family:system-ui,"Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:17px;line-height:1.6}.shell{max-width:760px;margin:auto;padding:16px 12px 36px}.mast{display:flex;justify-content:space-between;color:#2d5e55;font-weight:700;gap:10px;padding:4px 8px 14px}.mast small{font-size:14px}.meter{height:9px;background:#dde7e5;border-radius:20px;overflow:hidden;margin-bottom:18px}.meter div{height:100%;width:0;background:#336d5e;transition:width .2s}.panel{border-radius:18px;background:white;padding:clamp(18px,4vw,30px);box-shadow:0 4px 20px #173f3414}h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}.copy{white-space:pre-line;line-height:1.85;color:#3f5753}.field{border-top:1px solid #e4ece9;padding:19px 0}.field:first-of-type{border-top:0}.qtitle{font-size:19px;font-weight:700;margin-bottom:9px}.hint,.caption{color:#667a78;font-size:14px;margin-bottom:10px}.required{color:#b54747;font-size:13px;margin-left:6px}.options{display:grid;gap:8px}.option{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #dbe6e2;border-radius:11px;cursor:pointer;background:#fcfdfd}.option:has(input:checked){border-color:#32745e;background:#eaf5ef}.option input{width:22px;height:22px;accent-color:#32745e;flex-shrink:0}input[type=text],select,textarea{width:100%;border:1px solid #cddbd6;border-radius:10px;background:#fff;padding:13px;font:inherit;min-height:49px}textarea{min-height:100px;resize:vertical}input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}.actions{display:flex;gap:12px;margin-top:22px}.btn{border:0;border-radius:12px;padding:15px 17px;font-size:18px;font-weight:700;cursor:pointer;flex:1}.next{background:#2d705d;color:white}.prev{background:#e6edeb;color:#274d43}.btn:disabled{opacity:.5}.status{color:#b43939}#status{color:#ab3434;text-align:center;font-size:15px;min-height:20px}.minor{font-size:14px;color:#536a62;margin:8px 0}.notice{background:#eef5f2;border-radius:12px;padding:13px;white-space:pre-line}@media(min-width:900px){.shell{padding-top:32px}}
 
-</style></head><body><main class="shell"><div class="mast">正華學苑 × 佳音英語 <small id="step"></small></div><div class="meter"><div id="meterFill"></div></div><div id="page"><div class="panel">正在載入問卷…</div></div><p id="status" role="status" aria-live="polite"></p></main><script>
-// 貼上 Apps Script 正式部署的 /exec 網址（不是 /dev）。
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>江翠校家長意見調查表</title>
+<style>
+*{box-sizing:border-box}
+html,body{
+ margin:0;background:#f3f5f7;color:#1a292b;
+ font-family:system-ui,"Noto Sans TC","Microsoft JhengHei",sans-serif;
+ font-size:17px;line-height:1.6
+}
+.shell{max-width:760px;margin:auto;padding:16px 12px 36px}
+.mast{display:flex;justify-content:space-between;color:#2d5e55;font-weight:700;gap:10px;padding:4px 8px 14px}
+.mast small{font-size:14px}
+.meter{height:9px;background:#dde7e5;border-radius:20px;overflow:hidden;margin-bottom:18px}
+.meter div{height:100%;width:0;background:#336d5e;transition:width .2s}
+.panel{border-radius:18px;background:white;padding:clamp(18px,4vw,30px);box-shadow:0 4px 20px #173f3414}
+h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}
+.copy{white-space:pre-line;line-height:1.85;color:#3f5753}
+.field{border-top:1px solid #e4ece9;padding:19px 0}
+.field:first-of-type{border-top:0}
+.qtitle{font-size:19px;font-weight:700;margin-bottom:9px}
+.hint,.caption{color:#667a78;font-size:14px;margin-bottom:10px}
+.required{color:#b54747;font-size:13px;margin-left:6px}
+.options{display:grid;gap:8px}
+.option{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #dbe6e2;border-radius:11px;cursor:pointer;background:#fcfdfd}
+.option:has(input:checked){border-color:#32745e;background:#eaf5ef}
+.option input{width:22px;height:22px;accent-color:#32745e;flex-shrink:0}
+input[type=text],select,textarea{width:100%;border:1px solid #cddbd6;border-radius:10px;background:#fff;padding:13px;font:inherit;min-height:49px}
+textarea{min-height:100px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}
+.actions{display:flex;gap:12px;margin-top:22px}
+.btn{border:0;border-radius:12px;padding:15px 17px;font-size:18px;font-weight:700;cursor:pointer;flex:1}
+.next{background:#2d705d;color:white}
+.prev{background:#e6edeb;color:#274d43}
+.btn:disabled{opacity:.5}
+#status{color:#ab3434;text-align:center;font-size:15px;min-height:20px}
+.minor{font-size:14px;color:#536a62;margin:8px 0}
+.notice{background:#eef5f2;border-radius:12px;padding:13px;white-space:pre-line}
+@media(min-width:900px){.shell{padding-top:32px}}
+</style>
+</head>
+<body>
+<main class="shell">
+ <div class="mast">
+  正華學苑 × 佳音英語
+  <small id="step"></small>
+ </div>
+ <div class="meter"><div id="meterFill"></div></div>
+ <div id="page"><div class="panel">正在載入問卷…</div></div>
+ <p id="status" role="status" aria-live="polite"></p>
+</main>
+
+<script>
 window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbx7hdtYN_3Nii6q8bWcb4X_9mqTolcaFPumYZUziL0WkI3PvbyDZ15nW10finLUbkun/exec';
+</script>
 
-</script><script>
+<script>
 'use strict';
+
 const API=window.SURVEY_API_URL||'';
 const STORE='jiangcui-survey-v1';
-let config=null,answer={studentName:'',isTutoring:'',isEnglish:'',isNewStudent:'',tutoringClass:'',englishClass:'',responses:{},other:{},comments:{}},pageIndex=0,posting=false;
+let config=null;
+let answer={
+ studentName:'',
+ isTutoring:'',
+ isEnglish:'',
+ isNewStudent:'',
+ tutoringClass:'',
+ englishClass:'',
+ responses:{},
+ other:{},
+ comments:{}
+};
+let pageIndex=0,posting=false;
 const $=id=>document.getElementById(id);
-const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const read=()=>{try{const x=JSON.parse(localStorage.getItem(STORE)||'null');if(x){answer={...answer,...x.answer,responses:x.answer?.responses||{},other:x.answer?.other||{},comments:x.answer?.comments||{}};pageIndex=x.pageIndex||0}}catch(e){}};
-const save=()=>{try{localStorage.setItem(STORE,JSON.stringify({answer,pageIndex}))}catch(e){}};
-function eligible(q){const c=q.condition;return c==='全部'||(!c)||c==='課輔'&&answer.isTutoring==='是'||c==='英語'&&answer.isEnglish==='是'||c==='新生'&&answer.isNewStudent==='是'||c==='課輔新生'&&answer.isTutoring==='是'&&answer.isNewStudent==='是'||c==='英語新生'&&answer.isEnglish==='是'&&answer.isNewStudent==='是'}
-const pageTitles=['基本資料','課輔第1頁','課輔第2頁','英語第1頁','英語第2頁','行政服務','鼓勵與故事'];
-function pageList(){const p=[{id:'intro',label:'問卷首頁'} ,{id:'basic',label:'基本資料'}];if(!config)return p;
+
+const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;',
+ '<':'&lt;',
+ '>':'&gt;',
+ '"':'&quot;',
+ "'":'&#39;'
+}[c]));
+
+function read(){
+ try{
+  const x=JSON.parse(localStorage.getItem(STORE)||'null');
+  if(x){
+   answer={
+    ...answer,...x.answer,
+    responses:x.answer?.responses||{},
+    other:x.answer?.other||{},
+    comments:x.answer?.comments||{}
+   };
+   pageIndex=x.pageIndex||0;
+  }
+ }catch(e){}
+}
+function save(){
+ try{
+  localStorage.setItem(STORE,JSON.stringify({answer,pageIndex}));
+ }catch(e){}
+}
+
+function eligible(q){
+ const c=q.condition;
+ return c==='全部'||(!c)||
+ c==='課輔'&&answer.isTutoring==='是'||
+ c==='英語'&&answer.isEnglish==='是'||
+ c==='新生'&&answer.isNewStudent==='是'||
+ c==='課輔新生'&&answer.isTutoring==='是'&&answer.isNewStudent==='是'||
+ c==='英語新生'&&answer.isEnglish==='是'&&answer.isNewStudent==='是';
+}
+
+const pageTitles=[
+ '基本資料','課輔第1頁','課輔第2頁',
+ '英語第1頁','英語第2頁','行政服務','鼓勵與故事'
+];
+
+function pageList(){
+ const p=[
+  {id:'intro',label:'問卷首頁'},
+  {id:'basic',label:'基本資料'}
+ ];
+ if(!config)return p;
  for(const name of pageTitles.slice(1)){
-   const qs=config.questions.filter(q=>q.page===name&&eligible(q)).sort((a,b)=>a.order-b.order);
-   if(qs.length)p.push({id:name,label:name,questions:qs});
+  const qs=config.questions
+   .filter(q=>q.page===name&&eligible(q))
+   .sort((a,b)=>a.order-b.order);
+  if(qs.length)p.push({id:name,label:name,questions:qs});
  }
  return p;
 }
-function radio(name,v,label,checked){return `<label class="option"><input type="radio" name="${escapeHtml(name)}" value="${escapeHtml(v)}" ${checked?'checked':''}><span>${escapeHtml(label)}</span></label>`}
-function inputQuestion(q){const val=answer.responses[q.id], multi=q.type.startsWith('複選'),isOther=q.type.includes('其他'),comment=q.type.includes('備註');
- let html=`<section class="field" data-q="${escapeHtml(q.id)}"><div class="qtitle">${escapeHtml(q.title)} ${q.required?'<span class="required">＊必填</span>':''}</div>${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
- if(q.type==='長文字')return html+`<textarea data-text="${q.id}" placeholder="歡迎填寫（選填）">${escapeHtml(val||'')}</textarea></section>`;
- const selected=Array.isArray(val)?val:[val];html+='<div class="options">'+q.options.map((o,i)=>multi?`<label class="option"><input type="checkbox" name="${q.id}" value="${escapeHtml(o)}" ${selected.includes(o)?'checked':''}><span>${escapeHtml(o)}</span></label>`:radio(q.id,o,o,selected.includes(o))).join('')+'</div>';
- if(isOther){const visible=selected.includes('其他');html+=`<div class="minor" data-other-wrap="${q.id}" style="display:${visible?'block':'none'}">其他，請說明<input type="text" data-other="${q.id}" value="${escapeHtml(answer.other[q.id]||'')}"></div>`}
- if(comment)html+=`<div class="minor">補充建議（選填）</div><textarea data-comment="${q.id}">${escapeHtml(answer.comments[q.id]||'')}</textarea>`;
+
+function radio(name,v,label,checked){
+ return `<label class="option">
+ <input type="radio" name="${escapeHtml(name)}"
+ value="${escapeHtml(v)}" ${checked?'checked':''}>
+ <span>${escapeHtml(label)}</span></label>`;
+}
+
+function inputQuestion(q){
+ const val=answer.responses[q.id];
+ const multi=q.type.startsWith('複選');
+ const isOther=q.type.includes('其他');
+ const comment=q.type.includes('備註');
+ let html=`<section class="field" data-q="${escapeHtml(q.id)}">
+ <div class="qtitle">${escapeHtml(q.title)}
+ ${q.required?'<span class="required">＊必填</span>':''}
+ </div>
+ ${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
+
+ if(q.type==='長文字')
+  return html+`<textarea data-text="${q.id}"
+  placeholder="歡迎填寫（選填）">${escapeHtml(val||'')}</textarea></section>`;
+
+ const selected=Array.isArray(val)?val:[val];
+
+ html+='<div class="options">'+q.options.map(o=>multi?
+ `<label class="option"><input type="checkbox"
+ name="${q.id}" value="${escapeHtml(o)}"
+ ${selected.includes(o)?'checked':''}>
+ <span>${escapeHtml(o)}</span></label>`:
+ radio(q.id,o,o,selected.includes(o))
+ ).join('')+'</div>';
+
+ if(isOther){
+  const visible=selected.includes('其他');
+  html+=`<div class="minor" data-other-wrap="${q.id}"
+  style="display:${visible?'block':'none'}">
+  其他，請說明
+  <input type="text" data-other="${q.id}"
+  value="${escapeHtml(answer.other[q.id]||'')}">
+  </div>`;
+ }
+
+ if(comment)
+  html+=`<div class="minor">補充建議（選填）</div>
+  <textarea data-comment="${q.id}">${escapeHtml(answer.comments[q.id]||'')}</textarea>`;
+
  return html+'</section>';
 }
-function basic(){let h='<h1>基本資料</h1><p class="caption">請填寫孩子的中文姓名與就讀班級。</p><section class="field"><div class="qtitle">孩子中文姓名 <span class="required">＊必填</span></div><input type="text" data-basic="studentName" value="'+escapeHtml(answer.studentName)+'"></section>';
- for(const [key,label,cKey,cls] of [['isTutoring','是否就讀正華課輔班？','tutoringClass','tutoring'],['isEnglish','是否就讀佳音英語班？','englishClass','english'],['isNewStudent','是否為本學期新生？',null,null]]){
- h+=`<section class="field"><div class="qtitle">${label}</div><div class="options">${radio(key,'是','是',answer[key]==='是')}${radio(key,'否','否',answer[key]==='否')}</div>`;
- if(cKey){h+=`<div data-class-wrap="${key}" style="display:${answer[key]==='是'?'block':'none'}"><div class="minor">選擇班級</div><select data-basic="${cKey}"><option value="">請選擇班級</option>${(config.classes[cls]||[]).map(v=>`<option value="${escapeHtml(v)}" ${answer[cKey]===v?'selected':''}>${escapeHtml(v)}</option>`).join('')}</select></div>`}
- h+='</section>';
+
+function basic(){
+ let h='<h1>基本資料</h1><p class="caption">請填寫孩子的中文姓名與就讀班級。</p><section class="field"><div class="qtitle">孩子中文姓名 <span class="required">＊必填</span></div><input type="text" data-basic="studentName" value="'+escapeHtml(answer.studentName)+'"></section>';
+
+ for(const [key,label,cKey,cls] of [
+  ['isTutoring','是否就讀正華課輔班？','tutoringClass','tutoring'],
+  ['isEnglish','是否就讀佳音英語班？','englishClass','english'],
+  ['isNewStudent','是否為本學期新生？',null,null]
+ ]){
+  h+=`<section class="field"><div class="qtitle">${label}</div>
+  <div class="options">
+  ${radio(key,'是','是',answer[key]==='是')}
+  ${radio(key,'否','否',answer[key]==='否')}
+  </div>`;
+
+  if(cKey){
+   h+=`<div data-class-wrap="${key}"
+   style="display:${answer[key]==='是'?'block':'none'}">
+   <div class="minor">選擇班級</div>
+   <select data-basic="${cKey}">
+   <option value="">請選擇班級</option>
+   ${(config.classes[cls]||[]).map(v=>
+    `<option value="${escapeHtml(v)}"
+    ${answer[cKey]===v?'selected':''}>${escapeHtml(v)}</option>`
+   ).join('')}
+   </select></div>`;
+  }
+  h+='</section>';
  }
- return h+config.questions.filter(q=>q.page==='基本資料'&&eligible(q)).sort((a,b)=>a.order-b.order).map(inputQuestion).join('');
+
+ return h+config.questions
+  .filter(q=>q.page==='基本資料'&&eligible(q))
+  .sort((a,b)=>a.order-b.order)
+  .map(inputQuestion).join('');
 }
-function collect(){if(!config)return;
- document.querySelectorAll('[data-basic]').forEach(el=>answer[el.dataset.basic]=el.value.trim());
- for(const k of ['isTutoring','isEnglish','isNewStudent']){const radio=document.querySelector(`input[name="${k}"]:checked`);if(radio)answer[k]=radio.value}
- for(const q of config.questions){const panel=document.querySelector(`[data-q="${q.id}"]`);if(!panel)continue;
-   if(q.type==='長文字'){answer.responses[q.id]=panel.querySelector('textarea[data-text]')?.value.trim()||'';continue}
-   const checked=[...panel.querySelectorAll('input[type=radio]:checked,input[type=checkbox]:checked')].map(el=>el.value);
-   answer.responses[q.id]=q.type.startsWith('複選')?checked:(checked[0]||'');
-   if(q.type.includes('其他'))answer.other[q.id]=panel.querySelector('[data-other]')?.value.trim()||'';
-   if(q.type.includes('備註'))answer.comments[q.id]=panel.querySelector('[data-comment]')?.value.trim()||'';
+
+function collect(){
+ if(!config)return;
+ document.querySelectorAll('[data-basic]').forEach(el=>
+  answer[el.dataset.basic]=el.value.trim()
+ );
+
+ for(const k of ['isTutoring','isEnglish','isNewStudent']){
+  const r=document.querySelector(`input[name="${k}"]:checked`);
+  if(r)answer[k]=r.value;
+ }
+
+ for(const q of config.questions){
+  const panel=document.querySelector(`[data-q="${q.id}"]`);
+  if(!panel)continue;
+
+  if(q.type==='長文字'){
+   answer.responses[q.id]=panel.querySelector('textarea[data-text]')?.value.trim()||'';
+   continue;
+  }
+
+  const checked=[...panel.querySelectorAll(
+   'input[type=radio]:checked,input[type=checkbox]:checked'
+  )].map(el=>el.value);
+
+  answer.responses[q.id]=q.type.startsWith('複選')?
+   checked:(checked[0]||'');
+
+  if(q.type.includes('其他'))
+   answer.other[q.id]=panel.querySelector('[data-other]')?.value.trim()||'';
+
+  if(q.type.includes('備註'))
+   answer.comments[q.id]=panel.querySelector('[data-comment]')?.value.trim()||'';
  }
  save();
 }
-function toggle(){for(const k of ['isTutoring','isEnglish']){const el=document.querySelector(`[data-class-wrap="${k}"]`);if(el)el.style.display=answer[k]==='是'?'block':'none'};
- for(const q of config.questions){const el=document.querySelector(`[data-other-wrap="${q.id}"]`),v=answer.responses[q.id];if(el)el.style.display=(Array.isArray(v)?v.includes('其他'):v==='其他')?'block':'none'}
+
+function toggle(){
+ for(const k of ['isTutoring','isEnglish']){
+  const el=document.querySelector(`[data-class-wrap="${k}"]`);
+  if(el)el.style.display=answer[k]==='是'?'block':'none';
+ }
+
+ for(const q of config.questions){
+  const el=document.querySelector(`[data-other-wrap="${q.id}"]`);
+  const v=answer.responses[q.id];
+  if(el)el.style.display=
+   (Array.isArray(v)?v.includes('其他'):v==='其他')?'block':'none';
+ }
 }
-function check(p){if(p.id==='intro')return '';
+
+function check(p){
+ if(p.id==='intro')return '';
+
  if(p.id==='basic'){
- if(!answer.studentName)return '請填寫孩子中文姓名';
- for(const k of ['isTutoring','isEnglish','isNewStudent'])if(!answer[k])return '請完成基本資料中的是／否選擇';
- if(answer.isTutoring==='否'&&answer.isEnglish==='否')return '請確認孩子至少就讀一項課程';
- if(answer.isTutoring==='是'&&!answer.tutoringClass)return '請選擇課輔班級';
- if(answer.isEnglish==='是'&&!answer.englishClass)return '請選擇英語班級';
+  if(!answer.studentName)return '請填寫孩子中文姓名';
+  for(const k of ['isTutoring','isEnglish','isNewStudent'])
+   if(!answer[k])return '請完成基本資料中的是／否選擇';
+  if(answer.isTutoring==='否'&&answer.isEnglish==='否')
+   return '請確認孩子至少就讀一項課程';
+  if(answer.isTutoring==='是'&&!answer.tutoringClass)
+   return '請選擇課輔班級';
+  if(answer.isEnglish==='是'&&!answer.englishClass)
+   return '請選擇英語班級';
  }
- const qs=p.id==='basic'?config.questions.filter(q=>q.page==='基本資料'&&eligible(q)):(p.questions||[]);
+
+ const qs=p.id==='basic'?
+  config.questions.filter(q=>q.page==='基本資料'&&eligible(q)):
+  (p.questions||[]);
+
  const max=Math.min(20,Math.max(1,Number(config.settings['複選上限'])||3));
- for(const q of qs){const v=answer.responses[q.id],selected=Array.isArray(v)?v:[v];if(q.required&&(!v||Array.isArray(v)&&!v.length))return `請完成：${q.title}`;
- if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>max)return `「${q.title}」最多選 ${max} 項`;
- if(q.type.includes('其他')&&selected.includes('其他')&&!answer.other[q.id])return `請補充「${q.title}」的其他內容`;
+
+ for(const q of qs){
+  const v=answer.responses[q.id];
+  const selected=Array.isArray(v)?v:[v];
+
+  if(q.required&&(!v||Array.isArray(v)&&!v.length))
+   return `請完成：${q.title}`;
+
+  if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>max)
+   return `「${q.title}」最多選 ${max} 項`;
+
+  if(q.type.includes('其他')&&selected.includes('其他')&&!answer.other[q.id])
+   return `請補充「${q.title}」的其他內容`;
  }
+
  return '';
 }
-function render(){if(!config)return;const ps=pageList();pageIndex=Math.max(0,Math.min(pageIndex,ps.length-1));const p=ps[pageIndex];$('step').textContent=`${pageIndex+1} / ${ps.length} 頁`;$('meterFill').style.width=`${(pageIndex+1)/ps.length*100}%`;
- let h='';if(p.id==='intro')h=`<h1>${escapeHtml(config.settings['首頁標題']||'家長意見調查表')}</h1><div class="copy">${escapeHtml(config.settings['首頁歡迎文字']||'邀請您分享寶貴意見。')}</div>`;
- else if(p.id==='basic')h=basic();else h=`<h1>${escapeHtml(p.label)}</h1>${p.questions.map(inputQuestion).join('')}`;
- $('page').innerHTML=`<div class="panel">${h}<div class="actions">${pageIndex?'<button id="prev" class="btn prev">上一頁</button>':''}<button id="next" class="btn next">${pageIndex===ps.length-1?'送出問卷':'下一頁'}</button></div></div>`;
+
+function render(){
+ if(!config)return;
+ const ps=pageList();
+ pageIndex=Math.max(0,Math.min(pageIndex,ps.length-1));
+ const p=ps[pageIndex];
+
+ $('step').textContent=`${pageIndex+1} / ${ps.length} 頁`;
+ $('meterFill').style.width=`${(pageIndex+1)/ps.length*100}%`;
+
+ let h='';
+
+ if(p.id==='intro')
+  h=`<h1>${escapeHtml(config.settings['首頁標題']||'家長意見調查表')}</h1>
+  <div class="copy">${escapeHtml(config.settings['首頁歡迎文字']||'邀請您分享寶貴意見。')}</div>`;
+ else if(p.id==='basic')
+  h=basic();
+ else
+  h=`<h1>${escapeHtml(p.label)}</h1>${p.questions.map(inputQuestion).join('')}`;
+
+ $('page').innerHTML=`<div class="panel">${h}
+ <div class="actions">
+ ${pageIndex?'<button id="prev" class="btn prev">上一頁</button>':''}
+ <button id="next" class="btn next">
+ ${pageIndex===ps.length-1?'送出問卷':'下一頁'}
+ </button>
+ </div></div>`;
+
  $('status').textContent='';
- $('prev')?.addEventListener('click',()=>{collect();pageIndex--;save();render();window.scrollTo(0,0)});
- $('next').addEventListener('click',()=>{collect();const e=check(p);if(e){$('status').textContent=e;return}if(pageIndex===ps.length-1)submit();else{pageIndex++;save();render();window.scrollTo(0,0)}});
- $('page').addEventListener('input',()=>collect());$('page').addEventListener('change',()=>{collect();toggle()});toggle();
+
+ $('prev')?.addEventListener('click',()=>{
+  collect();pageIndex--;save();render();window.scrollTo(0,0);
+ });
+
+ $('next').addEventListener('click',()=>{
+  collect();
+  const e=check(p);
+  if(e){$('status').textContent=e;return;}
+  if(pageIndex===ps.length-1)submit();
+  else{
+   pageIndex++;save();render();window.scrollTo(0,0);
+  }
+ });
+
+ $('page').addEventListener('input',()=>collect());
+ $('page').addEventListener('change',()=>{collect();toggle()});
+ toggle();
 }
+
 let requestId='';
-function submit(){if(posting)return;posting=true;const btn=$('next');btn.disabled=true;$('status').textContent='正在送出，請勿關閉視窗…';requestId=requestId||('q'+Date.now().toString(36)+Math.random().toString(36).slice(2,12));const payload={...answer,requestId};
- const form=document.createElement('form');form.method='POST';form.action=API;form.target='survey_transport';form.style.display='none';
- const field=document.createElement('input');field.name='payload';field.value=JSON.stringify(payload);form.appendChild(field);document.body.appendChild(form);form.submit();form.remove();
+let submitTimeout=null;
+
+function submit(){
+ if(posting)return;
+ posting=true;
+ const btn=$('next');
+ btn.disabled=true;
+ $('status').textContent='正在送出，請勿關閉視窗…';
+
+ requestId=requestId||(
+  'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,12)
+ );
+ const payload={...answer,requestId};
+
+ const form=document.createElement('form');
+ form.method='POST';
+ form.action=API;
+ form.target='survey_transport';
+ form.style.display='none';
+
+ const field=document.createElement('input');
+ field.name='payload';
+ field.value=JSON.stringify(payload);
+ form.appendChild(field);
+ document.body.appendChild(form);
+ form.submit();
+ form.remove();
+
+ clearTimeout(submitTimeout);
+ submitTimeout=setTimeout(()=>{
+  if(!posting)return;
+  posting=false;
+  btn.disabled=false;
+  $('status').textContent=
+   '送出結果尚未確認。請先到 Google Sheet「家長回覆總表」查看是否已有這筆資料，再決定是否重試。';
+ },20000);
 }
-window.addEventListener('message',event=>{const x=event.data;if(!posting||!x||x.type!=='zhenghua-survey-result'||x.requestId!==requestId)return;
- // Google Apps Script 的 HTML 回應可能來自 script.googleusercontent.com。
- if(!/^https:\/\/(script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin))return;
- posting=false;if(x.ok){localStorage.removeItem(STORE);$('meterFill').style.width='100%';$('step').textContent='完成';$('page').innerHTML=`<div class="panel"><h1>${escapeHtml(config.settings['送出成功標題']||'問卷已送出')}</h1><div class="copy">${escapeHtml(config.settings['送出成功感謝文字']||'感謝您的回饋！')}</div></div>`;$('status').textContent='';window.scrollTo(0,0)}else{$('status').textContent=x.message||'送出失敗，請重試';$('next').disabled=false}
+
+window.addEventListener('message',event=>{
+ const x=event.data;
+
+ if(!posting||!x||
+    x.type!=='zhenghua-survey-result'||
+    x.requestId!==requestId)return;
+
+ // 只接受 Google Apps Script 相關來源。
+ if(!/^https:\/\/(script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin))
+  return;
+
+ clearTimeout(submitTimeout);
+ posting=false;
+
+ if(x.ok){
+  localStorage.removeItem(STORE);
+  $('meterFill').style.width='100%';
+  $('step').textContent='完成';
+  $('page').innerHTML=`<div class="panel">
+   <h1>${escapeHtml(config.settings['送出成功標題']||'問卷已送出')}</h1>
+   <div class="copy">${escapeHtml(config.settings['送出成功感謝文字']||'感謝您的回饋！')}</div>
+   </div>`;
+  $('status').textContent='';
+  window.scrollTo(0,0);
+ }else{
+  $('status').textContent=x.message||'送出失敗，請重試';
+  $('next').disabled=false;
+ }
 });
-function load(){if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API)){$('page').innerHTML='<div class="panel"><h1>尚未完成網站設定</h1><p>請確認 Apps Script 的部署與存取權限設定。</p></div>';return}
- const cb='surveycb'+Date.now();const script=document.createElement('script');let done=false;
- const fail=()=>{if(done)return;done=true;delete window[cb];$('page').innerHTML='<div class="panel"><h1>問卷暫時無法載入</h1><p>請稍後重新整理頁面，或通知學校。</p></div>'};
- window[cb]=data=>{if(done)return;done=true;delete window[cb];script.remove();if(!data.ok){fail();return}config=data;read();if(config.settings['問卷狀態']!=='開放'){$('page').innerHTML='<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';return}render()};
- script.onerror=fail;script.src=API+'?action=config&callback='+cb+'&v='+Date.now();document.head.appendChild(script);
+
+function load(){
+ if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API)){
+  $('page').innerHTML='<div class="panel"><h1>尚未完成網站設定</h1><p>請確認 Apps Script 的部署與存取權限設定。</p></div>';
+  return;
+ }
+
+ const cb='surveycb'+Date.now();
+ const script=document.createElement('script');
+ let done=false;
+
+ const fail=()=>{
+  if(done)return;
+  done=true;
+  delete window[cb];
+  $('page').innerHTML='<div class="panel"><h1>問卷暫時無法載入</h1><p>請稍後重新整理頁面，或通知學校。</p></div>';
+ };
+
+ window[cb]=data=>{
+  if(done)return;
+  done=true;
+  delete window[cb];
+  script.remove();
+
+  if(!data.ok){fail();return;}
+
+  config=data;
+  read();
+
+  if(config.settings['問卷狀態']!=='開放'){
+   $('page').innerHTML='<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';
+   return;
+  }
+  render();
+ };
+
+ script.onerror=fail;
+ script.src=API+'?action=config&callback='+cb+'&v='+Date.now();
+ document.head.appendChild(script);
  setTimeout(fail,15000);
 }
-const iframe=document.createElement('iframe');iframe.name='survey_transport';iframe.style.display='none';iframe.title='問卷送出';document.body.appendChild(iframe);load();
 
-</script></body></html>
+const iframe=document.createElement('iframe');
+iframe.name='survey_transport';
+iframe.style.display='none';
+iframe.title='問卷送出';
+document.body.appendChild(iframe);
+
+load();
+</script>
+</body>
+</html>
