@@ -22,138 +22,41 @@ h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}
 .field{border-top:1px solid #e4ece9;padding:19px 0}
 .field:first-of-type{border-top:0}
 .qtitle{font-size:19px;font-weight:700;margin-bottom:9px}
-
-/* 清楚的題號與分題區塊 */
-.qtitle{
- display:flex;
- align-items:flex-start;
- gap:9px;
- flex-wrap:wrap;
- margin-bottom:13px;
- line-height:1.5
-}
-.qbadge{
- display:inline-flex;
- align-items:center;
- justify-content:center;
- min-width:47px;
- padding:4px 10px;
- border-radius:8px;
- background:#285c4f;
- color:#fff;
- font-size:15px;
- font-weight:800;
- letter-spacing:.3px;
- flex-shrink:0
-}
+/* 清楚的問卷題號與分題區塊 */
+.qtitle{display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;margin-bottom:13px;line-height:1.5}
+.qbadge{display:inline-flex;align-items:center;justify-content:center;min-width:47px;padding:4px 10px;border-radius:8px;background:#285c4f;color:#fff;font-size:15px;font-weight:800;letter-spacing:.3px;flex-shrink:0}
 .qtext{flex:1;min-width:180px}
-.field[data-q]{
- margin:15px 0;
- padding:18px 15px;
- border:1px solid #dfebe6;
- border-left:4px solid #85b8a3;
- border-radius:13px;
- background:#fbfdfc
-}
+.field[data-q]{margin:15px 0;padding:18px 15px;border:1px solid #dfebe6;border-left:4px solid #85b8a3;border-radius:13px;background:#fbfdfc}
 .field[data-q]:first-of-type{border-top:1px solid #dfebe6}
-.field[data-q]+.field[data-q]{margin-top:20px}
-
-/* B8 各活動逐項評分 */
-.rating-legend{
- background:#eef6f2;
- border-radius:10px;
- padding:10px 12px;
- margin:10px 0 15px;
- color:#315b4e;
- font-size:14px
-}
+.field[data-q] + .field[data-q]{margin-top:20px}
+.rating-legend{background:#eef6f2;border-radius:10px;padding:10px 12px;margin:10px 0 15px;color:#315b4e;font-size:14px}
 .rating-item{padding:13px 0;border-top:1px solid #e2eee8}
 .rating-name{font-weight:700;margin-bottom:9px}
 .rating-scale{display:flex;flex-wrap:wrap;gap:8px}
-.rating-choice{
- display:flex;
- align-items:center;
- justify-content:center;
- gap:5px;
- min-width:49px;
- padding:8px 11px;
- border:1px solid #d6e4dd;
- border-radius:9px;
- background:white;
- cursor:pointer;
- font-size:15px
-}
-.rating-choice:has(input:checked){
- border-color:#32745e;
- background:#e4f3e9;
- font-weight:700
-}
+.rating-choice{display:flex;align-items:center;justify-content:center;gap:5px;min-width:49px;padding:8px 11px;border:1px solid #d6e4dd;border-radius:9px;background:white;cursor:pointer;font-size:15px}
+.rating-choice:has(input:checked){border-color:#32745e;background:#e4f3e9;font-weight:700}
 .rating-choice input{accent-color:#32745e}
 .rating-na{min-width:auto}
+@media(max-width:420px){.rating-choice{min-width:43px;padding:8px}}
+@media(max-width:420px){.field[data-q]{padding:16px 12px}.qtitle{font-size:18px}.qtext{min-width:150px}}
 
-@media(max-width:420px){
- .rating-choice{min-width:43px;padding:8px}
- .field[data-q]{padding:16px 12px}
- .qtitle{font-size:18px}
- .qtext{min-width:150px}
-}
 .hint,.caption{color:#667a78;font-size:14px;margin-bottom:10px}
 .required{color:#b54747;font-size:13px;margin-left:6px}
 .options{display:grid;gap:8px}
-.option{
- display:flex;
- align-items:center;
- gap:12px;
- padding:12px;
- border:1px solid #dbe6e2;
- border-radius:11px;
- cursor:pointer;
- background:#fcfdfd
-}
+.option{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #dbe6e2;border-radius:11px;cursor:pointer;background:#fcfdfd}
 .option:has(input:checked){border-color:#32745e;background:#eaf5ef}
-.option input{
- width:22px;
- height:22px;
- accent-color:#32745e;
- flex-shrink:0
-}
-input[type=text],select,textarea{
- width:100%;
- border:1px solid #cddbd6;
- border-radius:10px;
- background:#fff;
- padding:13px;
- font:inherit;
- min-height:49px
-}
+.option input{width:22px;height:22px;accent-color:#32745e;flex-shrink:0}
+input[type=text],select,textarea{width:100%;border:1px solid #cddbd6;border-radius:10px;background:#fff;padding:13px;font:inherit;min-height:49px}
 textarea{min-height:100px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}
 .actions{display:flex;gap:12px;margin-top:22px}
-.btn{
- border:0;
- border-radius:12px;
- padding:15px 17px;
- font-size:18px;
- font-weight:700;
- cursor:pointer;
- flex:1
-}
+.btn{border:0;border-radius:12px;padding:15px 17px;font-size:18px;font-weight:700;cursor:pointer;flex:1}
 .next{background:#2d705d;color:white}
 .prev{background:#e6edeb;color:#274d43}
 .btn:disabled{opacity:.5}
-#status{
- color:#ab3434;
- text-align:center;
- font-size:15px;
- min-height:20px
-}
+#status{color:#ab3434;text-align:center;font-size:15px;min-height:20px}
 .minor{font-size:14px;color:#536a62;margin:8px 0}
-.notice{
- background:#eef5f2;
- border-radius:12px;
- padding:13px;
- white-space:pre-line
-}
+.notice{background:#eef5f2;border-radius:12px;padding:13px;white-space:pre-line}
 @media(min-width:900px){.shell{padding-top:32px}}
 </style>
 </head>
@@ -169,8 +72,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}
 </main>
 
 <script>
-window.SURVEY_API_URL =
- 'https://script.google.com/macros/s/AKfycbx7hdtYN_3Nii6q8bWcb4X_9mqTolcaFPumYZUziL0WkI3PvbyDZ15nW10finLUbkun/exec';
+window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbx7hdtYN_3Nii6q8bWcb4X_9mqTolcaFPumYZUziL0WkI3PvbyDZ15nW10finLUbkun/exec';
 </script>
 
 <script>
@@ -179,7 +81,6 @@ window.SURVEY_API_URL =
 const API=window.SURVEY_API_URL||'';
 const STORE='jiangcui-survey-v1';
 let config=null;
-
 let answer={
  studentName:'',
  isTutoring:'',
@@ -191,7 +92,6 @@ let answer={
  other:{},
  comments:{}
 };
-
 let pageIndex=0,posting=false;
 const $=id=>document.getElementById(id);
 
@@ -217,7 +117,6 @@ function read(){
   }
  }catch(e){}
 }
-
 function save(){
  try{
   localStorage.setItem(STORE,JSON.stringify({answer,pageIndex}));
@@ -245,7 +144,6 @@ function pageList(){
   {id:'basic',label:'基本資料'}
  ];
  if(!config)return p;
-
  for(const name of pageTitles.slice(1)){
   const qs=config.questions
    .filter(q=>q.page===name&&eligible(q))
@@ -267,76 +165,53 @@ function inputQuestion(q){
  const multi=q.type.startsWith('複選');
  const isOther=q.type.includes('其他');
  const comment=q.type.includes('備註');
-
  let html=`<section class="field" data-q="${escapeHtml(q.id)}">
- <div class="qtitle">
- <span class="qbadge">${escapeHtml(q.id)}</span>
- <span class="qtext">${escapeHtml(q.title)}</span>
+ <div class="qtitle"><span class="qbadge">${escapeHtml(q.id)}</span><span class="qtext">${escapeHtml(q.title)}</span>
  ${q.required?'<span class="required">＊必填</span>':''}
  </div>
  ${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
 
- // B8：矩陣評分
  if(q.type==='矩陣評分1-5'){
-  const scores=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};
-
-  html+='<div class="rating-legend">1 分＝非常不喜歡　5 分＝非常喜歡<br>未接觸的活動請選「不了解／未參與」，不列入平均分數。</div>';
-
-  q.options.forEach((activity,i)=>{
-   html+=`<div class="rating-item">
-    <div class="rating-name">${i+1}. ${escapeHtml(activity)}</div>
-    <div class="rating-scale">`;
-
-   for(const score of ['1','2','3','4','5','不了解／未參與']){
-    const checked=scores[activity]===score?'checked':'';
-
-    html+=`<label class="rating-choice ${score==='不了解／未參與'?'rating-na':''}">
-     <input type="radio"
-      name="rating-${escapeHtml(q.id)}-${i}"
-      data-rate-q="${escapeHtml(q.id)}"
-      data-activity="${escapeHtml(activity)}"
-      value="${escapeHtml(score)}" ${checked}>
-     <span>${score}</span>
-    </label>`;
-   }
-   html+='</div></div>';
-  });
-
-  return html+'</section>';
+   const scores=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};
+   html+='<div class="rating-legend">請每項擇一評分：1 分＝非常不喜歡、5 分＝非常喜歡。<br>沒參與或不了解，請選「不了解／未參與」（不列入平均）。</div>';
+   q.options.forEach((activity,i)=>{
+     html+=`<div class="rating-item"><div class="rating-name">${i+1}. ${escapeHtml(activity)}</div><div class="rating-scale">`;
+     for(const score of ['1','2','3','4','5','不了解／未參與']){
+       const checked=scores[activity]===score?'checked':'';
+       html+=`<label class="rating-choice ${score==='不了解／未參與'?'rating-na':''}"><input type="radio" name="rating-${escapeHtml(q.id)}-${i}" data-rate-q="${escapeHtml(q.id)}" data-activity="${escapeHtml(activity)}" value="${escapeHtml(score)}" ${checked}><span>${score}</span></label>`;
+     }
+     html+='</div></div>';
+   });
+   return html+'</section>';
  }
 
- if(q.type==='長文字'){
+ if(q.type==='長文字')
   return html+`<textarea data-text="${q.id}"
-   placeholder="歡迎填寫（選填）">${escapeHtml(val||'')}</textarea>
-  </section>`;
- }
+  placeholder="歡迎填寫（選填）">${escapeHtml(val||'')}</textarea></section>`;
 
  const selected=Array.isArray(val)?val:[val];
 
  html+='<div class="options">'+q.options.map(o=>multi?
- `<label class="option">
-  <input type="checkbox" name="${q.id}"
-   value="${escapeHtml(o)}"
-   ${selected.includes(o)?'checked':''}>
-  <span>${escapeHtml(o)}</span>
- </label>`:
+ `<label class="option"><input type="checkbox"
+ name="${q.id}" value="${escapeHtml(o)}"
+ ${selected.includes(o)?'checked':''}>
+ <span>${escapeHtml(o)}</span></label>`:
  radio(q.id,o,o,selected.includes(o))
  ).join('')+'</div>';
 
  if(isOther){
   const visible=selected.includes('其他');
   html+=`<div class="minor" data-other-wrap="${q.id}"
-   style="display:${visible?'block':'none'}">
-   其他，請說明
-   <input type="text" data-other="${q.id}"
-    value="${escapeHtml(answer.other[q.id]||'')}">
+  style="display:${visible?'block':'none'}">
+  其他，請說明
+  <input type="text" data-other="${q.id}"
+  value="${escapeHtml(answer.other[q.id]||'')}">
   </div>`;
  }
 
- if(comment){
+ if(comment)
   html+=`<div class="minor">補充建議（選填）</div>
-   <textarea data-comment="${q.id}">${escapeHtml(answer.comments[q.id]||'')}</textarea>`;
- }
+  <textarea data-comment="${q.id}">${escapeHtml(answer.comments[q.id]||'')}</textarea>`;
 
  return html+'</section>';
 }
@@ -349,27 +224,24 @@ function basic(){
   ['isEnglish','是否就讀佳音英語班？','englishClass','english'],
   ['isNewStudent','是否為本學期新生？',null,null]
  ]){
-  h+=`<section class="field">
-   <div class="qtitle">${label}</div>
-   <div class="options">
-    ${radio(key,'是','是',answer[key]==='是')}
-    ${radio(key,'否','否',answer[key]==='否')}
-   </div>`;
+  h+=`<section class="field"><div class="qtitle">${label}</div>
+  <div class="options">
+  ${radio(key,'是','是',answer[key]==='是')}
+  ${radio(key,'否','否',answer[key]==='否')}
+  </div>`;
 
   if(cKey){
    h+=`<div data-class-wrap="${key}"
-    style="display:${answer[key]==='是'?'block':'none'}">
-    <div class="minor">選擇班級</div>
-    <select data-basic="${cKey}">
-     <option value="">請選擇班級</option>
-     ${(config.classes[cls]||[]).map(v=>
-      `<option value="${escapeHtml(v)}"
-       ${answer[cKey]===v?'selected':''}>${escapeHtml(v)}</option>`
-     ).join('')}
-    </select>
-   </div>`;
+   style="display:${answer[key]==='是'?'block':'none'}">
+   <div class="minor">選擇班級</div>
+   <select data-basic="${cKey}">
+   <option value="">請選擇班級</option>
+   ${(config.classes[cls]||[]).map(v=>
+    `<option value="${escapeHtml(v)}"
+    ${answer[cKey]===v?'selected':''}>${escapeHtml(v)}</option>`
+   ).join('')}
+   </select></div>`;
   }
-
   h+='</section>';
  }
 
@@ -381,7 +253,6 @@ function basic(){
 
 function collect(){
  if(!config)return;
-
  document.querySelectorAll('[data-basic]').forEach(el=>
   answer[el.dataset.basic]=el.value.trim()
  );
@@ -395,17 +266,15 @@ function collect(){
   const panel=document.querySelector(`[data-q="${q.id}"]`);
   if(!panel)continue;
 
-  if(q.type==='矩陣評分1-5'){
-   const ratings={};
-   panel.querySelectorAll('input[data-rate-q]:checked')
-    .forEach(el=>ratings[el.dataset.activity]=el.value);
-   answer.responses[q.id]=ratings;
-   continue;
-  }
+   if(q.type==='矩陣評分1-5'){
+    const ratings={};
+    panel.querySelectorAll('input[data-rate-q]:checked').forEach(el=>ratings[el.dataset.activity]=el.value);
+    answer.responses[q.id]=ratings;
+    continue;
+   }
 
   if(q.type==='長文字'){
-   answer.responses[q.id]=
-    panel.querySelector('textarea[data-text]')?.value.trim()||'';
+   answer.responses[q.id]=panel.querySelector('textarea[data-text]')?.value.trim()||'';
    continue;
   }
 
@@ -416,17 +285,12 @@ function collect(){
   answer.responses[q.id]=q.type.startsWith('複選')?
    checked:(checked[0]||'');
 
-  if(q.type.includes('其他')){
-   answer.other[q.id]=
-    panel.querySelector('[data-other]')?.value.trim()||'';
-  }
+  if(q.type.includes('其他'))
+   answer.other[q.id]=panel.querySelector('[data-other]')?.value.trim()||'';
 
-  if(q.type.includes('備註')){
-   answer.comments[q.id]=
-    panel.querySelector('[data-comment]')?.value.trim()||'';
-  }
+  if(q.type.includes('備註'))
+   answer.comments[q.id]=panel.querySelector('[data-comment]')?.value.trim()||'';
  }
-
  save();
 }
 
@@ -439,11 +303,8 @@ function toggle(){
  for(const q of config.questions){
   const el=document.querySelector(`[data-other-wrap="${q.id}"]`);
   const v=answer.responses[q.id];
-  if(el){
-   el.style.display=
-    (Array.isArray(v)?v.includes('其他'):v==='其他')?
-    'block':'none';
-  }
+  if(el)el.style.display=
+   (Array.isArray(v)?v.includes('其他'):v==='其他')?'block':'none';
  }
 }
 
@@ -452,22 +313,14 @@ function check(p){
 
  if(p.id==='basic'){
   if(!answer.studentName)return '請填寫孩子中文姓名';
-
-  for(const k of ['isTutoring','isEnglish','isNewStudent']){
+  for(const k of ['isTutoring','isEnglish','isNewStudent'])
    if(!answer[k])return '請完成基本資料中的是／否選擇';
-  }
-
-  if(answer.isTutoring==='否'&&answer.isEnglish==='否'){
+  if(answer.isTutoring==='否'&&answer.isEnglish==='否')
    return '請確認孩子至少就讀一項課程';
-  }
-
-  if(answer.isTutoring==='是'&&!answer.tutoringClass){
+  if(answer.isTutoring==='是'&&!answer.tutoringClass)
    return '請選擇課輔班級';
-  }
-
-  if(answer.isEnglish==='是'&&!answer.englishClass){
+  if(answer.isEnglish==='是'&&!answer.englishClass)
    return '請選擇英語班級';
-  }
  }
 
  const qs=p.id==='basic'?
@@ -480,27 +333,20 @@ function check(p){
   const v=answer.responses[q.id];
   const selected=Array.isArray(v)?v:[v];
 
-  if(q.type==='矩陣評分1-5'){
-   const ratings=v&&typeof v==='object'&&!Array.isArray(v)?v:{};
-
-   if(q.required&&q.options.some(activity=>!ratings[activity])){
-    return `請完成：${q.title}（所有活動都需選擇）`;
+   if(q.type==='矩陣評分1-5'){
+    const ratings=v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+    if(q.required&&q.options.some(activity=>!ratings[activity]))return `請完成：${q.title}（所有活動都需選擇）`;
+    continue;
    }
-   continue;
-  }
 
-  if(q.required&&(!v||Array.isArray(v)&&!v.length)){
+  if(q.required&&(!v||Array.isArray(v)&&!v.length))
    return `請完成：${q.title}`;
-  }
 
-  if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>max){
+  if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>max)
    return `「${q.title}」最多選 ${max} 項`;
-  }
 
-  if(q.type.includes('其他')&&
-     selected.includes('其他')&&!answer.other[q.id]){
+  if(q.type.includes('其他')&&selected.includes('其他')&&!answer.other[q.id])
    return `請補充「${q.title}」的其他內容`;
-  }
  }
 
  return '';
@@ -508,7 +354,6 @@ function check(p){
 
 function render(){
  if(!config)return;
-
  const ps=pageList();
  pageIndex=Math.max(0,Math.min(pageIndex,ps.length-1));
  const p=ps[pageIndex];
@@ -518,60 +363,40 @@ function render(){
 
  let h='';
 
- if(p.id==='intro'){
+ if(p.id==='intro')
   h=`<h1>${escapeHtml(config.settings['首頁標題']||'家長意見調查表')}</h1>
-   <div class="copy">${escapeHtml(config.settings['首頁歡迎文字']||'邀請您分享寶貴意見。')}</div>`;
- }else if(p.id==='basic'){
+  <div class="copy">${escapeHtml(config.settings['首頁歡迎文字']||'邀請您分享寶貴意見。')}</div>`;
+ else if(p.id==='basic')
   h=basic();
- }else{
-  h=`<h1>${escapeHtml(p.label)}</h1>
-   ${p.questions.map(inputQuestion).join('')}`;
- }
+ else
+  h=`<h1>${escapeHtml(p.label)}</h1>${p.questions.map(inputQuestion).join('')}`;
 
  $('page').innerHTML=`<div class="panel">${h}
-  <div class="actions">
-   ${pageIndex?'<button id="prev" class="btn prev">上一頁</button>':''}
-   <button id="next" class="btn next">
-    ${pageIndex===ps.length-1?'送出問卷':'下一頁'}
-   </button>
-  </div>
- </div>`;
+ <div class="actions">
+ ${pageIndex?'<button id="prev" class="btn prev">上一頁</button>':''}
+ <button id="next" class="btn next">
+ ${pageIndex===ps.length-1?'送出問卷':'下一頁'}
+ </button>
+ </div></div>`;
 
  $('status').textContent='';
 
  $('prev')?.addEventListener('click',()=>{
-  collect();
-  pageIndex--;
-  save();
-  render();
-  window.scrollTo(0,0);
+  collect();pageIndex--;save();render();window.scrollTo(0,0);
  });
 
  $('next').addEventListener('click',()=>{
   collect();
-
   const e=check(p);
-  if(e){
-   $('status').textContent=e;
-   return;
-  }
-
-  if(pageIndex===ps.length-1){
-   submit();
-  }else{
-   pageIndex++;
-   save();
-   render();
-   window.scrollTo(0,0);
+  if(e){$('status').textContent=e;return;}
+  if(pageIndex===ps.length-1)submit();
+  else{
+   pageIndex++;save();render();window.scrollTo(0,0);
   }
  });
 
  $('page').addEventListener('input',()=>collect());
- $('page').addEventListener('change',()=>{
-  collect();
-  toggle();
- });
-
+ $('page').addEventListener('change',()=>{collect();toggle()});
  toggle();
 }
 
@@ -581,7 +406,6 @@ let submitTimeout=null;
 function submit(){
  if(posting)return;
  posting=true;
-
  const btn=$('next');
  btn.disabled=true;
  $('status').textContent='正在送出，請勿關閉視窗…';
@@ -589,7 +413,6 @@ function submit(){
  requestId=requestId||(
   'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,12)
  );
-
  const payload={...answer,requestId};
 
  const form=document.createElement('form');
@@ -602,7 +425,6 @@ function submit(){
  field.name='payload';
  field.value=JSON.stringify(payload);
  form.appendChild(field);
-
  document.body.appendChild(form);
  form.submit();
  form.remove();
@@ -610,7 +432,6 @@ function submit(){
  clearTimeout(submitTimeout);
  submitTimeout=setTimeout(()=>{
   if(!posting)return;
-
   posting=false;
   btn.disabled=false;
   $('status').textContent=
@@ -623,14 +444,11 @@ window.addEventListener('message',event=>{
 
  if(!posting||!x||
     x.type!=='zhenghua-survey-result'||
-    x.requestId!==requestId){
-  return;
- }
+    x.requestId!==requestId)return;
 
- // 只接受 Google Apps Script 相關來源
- if(!/^https:\/\/(script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin)){
+ // 只接受 Google Apps Script 相關來源。
+ if(!/^https:\/\/(script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin))
   return;
- }
 
  clearTimeout(submitTimeout);
  posting=false;
@@ -639,12 +457,10 @@ window.addEventListener('message',event=>{
   localStorage.removeItem(STORE);
   $('meterFill').style.width='100%';
   $('step').textContent='完成';
-
   $('page').innerHTML=`<div class="panel">
    <h1>${escapeHtml(config.settings['送出成功標題']||'問卷已送出')}</h1>
    <div class="copy">${escapeHtml(config.settings['送出成功感謝文字']||'感謝您的回饋！')}</div>
-  </div>`;
-
+   </div>`;
   $('status').textContent='';
   window.scrollTo(0,0);
  }else{
@@ -655,8 +471,7 @@ window.addEventListener('message',event=>{
 
 function load(){
  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API)){
-  $('page').innerHTML=
-   '<div class="panel"><h1>尚未完成網站設定</h1><p>請確認 Apps Script 的部署與存取權限設定。</p></div>';
+  $('page').innerHTML='<div class="panel"><h1>尚未完成網站設定</h1><p>請確認 Apps Script 的部署與存取權限設定。</p></div>';
   return;
  }
 
@@ -668,9 +483,7 @@ function load(){
   if(done)return;
   done=true;
   delete window[cb];
-
-  $('page').innerHTML=
-   '<div class="panel"><h1>問卷暫時無法載入</h1><p>請稍後重新整理頁面，或通知學校。</p></div>';
+  $('page').innerHTML='<div class="panel"><h1>問卷暫時無法載入</h1><p>請稍後重新整理頁面，或通知學校。</p></div>';
  };
 
  window[cb]=data=>{
@@ -679,21 +492,15 @@ function load(){
   delete window[cb];
   script.remove();
 
-  if(!data.ok){
-   $('page').innerHTML=
-    '<div class="panel"><h1>問卷設定讀取失敗</h1><p>請通知學校確認後台設定。</p></div>';
-   return;
-  }
+  if(!data.ok){fail();return;}
 
   config=data;
   read();
 
   if(config.settings['問卷狀態']!=='開放'){
-   $('page').innerHTML=
-    '<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';
+   $('page').innerHTML='<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';
    return;
   }
-
   render();
  };
 
