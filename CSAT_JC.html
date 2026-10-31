@@ -1,522 +1,354 @@
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>江翠校家長意見調查表</title>
-<style>
-*{box-sizing:border-box}
-html,body{
- margin:0;background:#f3f5f7;color:#1a292b;
- font-family:system-ui,"Noto Sans TC","Microsoft JhengHei",sans-serif;
- font-size:17px;line-height:1.6
+/** 江翠校家長問卷：Google Apps Script Web App。請使用新的、專屬的 Google 試算表。 */
+const SPREADSHEET_ID = '14p0xc8sonZ8XP_77Wp-jgpJe8ZhnjGJEV39UYf7lA_k';
+const CONFIG_SHEET = '問卷設定';
+const RESPONSE_SHEET = '家長回覆總表';
+const ROSTERS = { tutoring:'課輔學生名單', english:'英語學生名單' };
+const PENDING = { tutoring:'課輔未填名單', english:'英語未填名單' };
+const QUESTION_HEADERS = ['題目代碼','所屬頁面','頁內順序','題目內容','題型','顯示條件','必填','啟用','說明提示'];
+const VALID_TYPES = ['單選','複選','單選＋其他','複選＋其他','單選＋備註','長文字','矩陣評分1-5'];
+const BASE_HEADERS = ['提交時間','學生姓名','是否就讀課輔','課輔班級','是否就讀英語','英語班級','是否新生'];
+const RESPONSES_JSON = '原始答案JSON';
+function sheet_(){return SpreadsheetApp.openById(SPREADSHEET_ID);}
+function text_(x){return String(x==null?'':x).trim();}
+function on_(x){return ['是','TRUE','1','啟用'].includes(text_(x).toUpperCase());}
+function getClasses_(s){
+  if(!s || s.getLastRow()<2)return [];
+  return [...new Set(s.getRange(2,1,s.getLastRow()-1,1).getDisplayValues().flat().map(text_).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
 }
-.shell{max-width:760px;margin:auto;padding:16px 12px 36px}
-.mast{display:flex;justify-content:space-between;color:#2d5e55;font-weight:700;gap:10px;padding:4px 8px 14px}
-.mast small{font-size:14px}
-.meter{height:9px;background:#dde7e5;border-radius:20px;overflow:hidden;margin-bottom:18px}
-.meter div{height:100%;width:0;background:#336d5e;transition:width .2s}
-.panel{border-radius:18px;background:white;padding:clamp(18px,4vw,30px);box-shadow:0 4px 20px #173f3414}
-h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}
-.copy{white-space:pre-line;line-height:1.85;color:#3f5753}
-.field{border-top:1px solid #e4ece9;padding:19px 0}
-.field:first-of-type{border-top:0}
-.qtitle{font-size:19px;font-weight:700;margin-bottom:9px}
-/* 清楚的問卷題號與分題區塊 */
-.qtitle{display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;margin-bottom:13px;line-height:1.5}
-.qbadge{display:inline-flex;align-items:center;justify-content:center;min-width:47px;padding:4px 10px;border-radius:8px;background:#285c4f;color:#fff;font-size:15px;font-weight:800;letter-spacing:.3px;flex-shrink:0}
-.qtext{flex:1;min-width:180px}
-.field[data-q]{margin:15px 0;padding:18px 15px;border:1px solid #dfebe6;border-left:4px solid #85b8a3;border-radius:13px;background:#fbfdfc}
-.field[data-q]:first-of-type{border-top:1px solid #dfebe6}
-.field[data-q] + .field[data-q]{margin-top:20px}
-.rating-legend{background:#eef6f2;border-radius:10px;padding:10px 12px;margin:10px 0 15px;color:#315b4e;font-size:14px}
-.rating-item{padding:13px 0;border-top:1px solid #e2eee8}
-.rating-name{font-weight:700;margin-bottom:9px}
-.rating-scale{display:flex;flex-wrap:wrap;gap:8px}
-.rating-choice{display:flex;align-items:center;justify-content:center;gap:5px;min-width:49px;padding:8px 11px;border:1px solid #d6e4dd;border-radius:9px;background:white;cursor:pointer;font-size:15px}
-.rating-choice:has(input:checked){border-color:#32745e;background:#e4f3e9;font-weight:700}
-.rating-choice input{accent-color:#32745e}
-.rating-na{min-width:auto}
-@media(max-width:420px){.rating-choice{min-width:43px;padding:8px}}
-@media(max-width:420px){.field[data-q]{padding:16px 12px}.qtitle{font-size:18px}.qtext{min-width:150px}}
-
-.hint,.caption{color:#667a78;font-size:14px;margin-bottom:10px}
-.required{color:#b54747;font-size:13px;margin-left:6px}
-.options{display:grid;gap:8px}
-.option{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #dbe6e2;border-radius:11px;cursor:pointer;background:#fcfdfd}
-.option:has(input:checked){border-color:#32745e;background:#eaf5ef}
-.option input{width:22px;height:22px;accent-color:#32745e;flex-shrink:0}
-input[type=text],select,textarea{width:100%;border:1px solid #cddbd6;border-radius:10px;background:#fff;padding:13px;font:inherit;min-height:49px}
-textarea{min-height:100px;resize:vertical}
-input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}
-.actions{display:flex;gap:12px;margin-top:22px}
-.btn{border:0;border-radius:12px;padding:15px 17px;font-size:18px;font-weight:700;cursor:pointer;flex:1}
-.next{background:#2d705d;color:white}
-.prev{background:#e6edeb;color:#274d43}
-.btn:disabled{opacity:.5}
-#status{color:#ab3434;text-align:center;font-size:15px;min-height:20px}
-.minor{font-size:14px;color:#536a62;margin:8px 0}
-.notice{background:#eef5f2;border-radius:12px;padding:13px;white-space:pre-line}
-@media(min-width:900px){.shell{padding-top:32px}}
-</style>
-</head>
-<body>
-<main class="shell">
- <div class="mast">
-  正華學苑 × 佳音英語
-  <small id="step"></small>
- </div>
- <div class="meter"><div id="meterFill"></div></div>
- <div id="page"><div class="panel">正在載入問卷…</div></div>
- <p id="status" role="status" aria-live="polite"></p>
-</main>
-
-<script>
-window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbx7hdtYN_3Nii6q8bWcb4X_9mqTolcaFPumYZUziL0WkI3PvbyDZ15nW10finLUbkun/exec';
-</script>
-
-<script>
-'use strict';
-
-const API=window.SURVEY_API_URL||'';
-const STORE='jiangcui-survey-v1';
-let config=null;
-let answer={
- studentName:'',
- isTutoring:'',
- isEnglish:'',
- isNewStudent:'',
- tutoringClass:'',
- englishClass:'',
- responses:{},
- other:{},
- comments:{}
-};
-let pageIndex=0,posting=false;
-const $=id=>document.getElementById(id);
-
-const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({
- '&':'&amp;',
- '<':'&lt;',
- '>':'&gt;',
- '"':'&quot;',
- "'":'&#39;'
-}[c]));
-
-function read(){
+function readConfig_(){
+ const ss=sheet_(),s=ss.getSheetByName(CONFIG_SHEET);if(!s)throw new Error('找不到「問卷設定」');
+ const n=Math.max(s.getLastRow(),2), rows=s.getRange(1,1,n,18).getDisplayValues();
+ const questions=[];
+ rows.slice(1).forEach(r=>{
+   const id=text_(r[0]),title=text_(r[3]);if(!id||!title||!on_(r[7]))return;
+   if(!/^[A-Z][0-9]{1,3}$/.test(id))return;
+   const type=text_(r[4]);if(!VALID_TYPES.includes(type))return;
+   questions.push({id,page:text_(r[1]),order:Number(r[2])||0,title,type,condition:text_(r[5])||'全部',required:on_(r[6]),hint:text_(r[8]),options:[]});
+ });
+ const optionsById=new Map();questions.forEach(q=>optionsById.set(q.id,q));
+ rows.slice(1).forEach(r=>{const id=text_(r[9]),q=optionsById.get(id),value=text_(r[11]);if(q&&value&&on_(r[12]))q.options.push({order:Number(r[10])||0,text:value});});
+ questions.forEach(q=>{q.options.sort((a,b)=>a.order-b.order);q.options=q.options.map(x=>x.text)});
+ questions.sort((a,b)=>a.page.localeCompare(b.page,'zh-Hant')||a.order-b.order);
+ const settings={};rows.slice(1).forEach(r=>{const key=text_(r[15]);if(key)settings[key]=String(r[16]||'')});
+ const classes={tutoring:getClasses_(ss.getSheetByName(ROSTERS.tutoring)),english:getClasses_(ss.getSheetByName(ROSTERS.english))};
+ return {questions,settings,classes};
+}
+/** JSONP 只公開題目、選項、班級名稱與公開文案；絕不回傳學生姓名。 */
+function doGet(e){
  try{
-  const x=JSON.parse(localStorage.getItem(STORE)||'null');
-  if(x){
-   answer={
-    ...answer,...x.answer,
-    responses:x.answer?.responses||{},
-    other:x.answer?.other||{},
-    comments:x.answer?.comments||{}
-   };
-   pageIndex=x.pageIndex||0;
-  }
- }catch(e){}
+   const p=e&&e.parameter||{},callback=text_(p.callback);
+   if(p.action!=='config')return ContentService.createTextOutput('江翠校家長問卷 API');
+   if(!/^[A-Za-z_$][\w$]{0,79}$/.test(callback))throw new Error('無效的 callback');
+   const data={ok:true,...readConfig_()};
+   return ContentService.createTextOutput(callback+'('+JSON.stringify(data).replace(/</g,'\\u003c')+');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+ }catch(err){return ContentService.createTextOutput('讀取失敗：'+String(err.message||err));}
 }
-function save(){
- try{
-  localStorage.setItem(STORE,JSON.stringify({answer,pageIndex}));
- }catch(e){}
-}
-
-function eligible(q){
+function isVisible_(q,a){
  const c=q.condition;
- return c==='全部'||(!c)||
- c==='課輔'&&answer.isTutoring==='是'||
- c==='英語'&&answer.isEnglish==='是'||
- c==='新生'&&answer.isNewStudent==='是'||
- c==='課輔新生'&&answer.isTutoring==='是'&&answer.isNewStudent==='是'||
- c==='英語新生'&&answer.isEnglish==='是'&&answer.isNewStudent==='是';
+ if(c==='課輔')return a.isTutoring==='是';
+ if(c==='英語')return a.isEnglish==='是';
+ if(c==='新生')return a.isNewStudent==='是';
+ if(c==='課輔新生')return a.isTutoring==='是'&&a.isNewStudent==='是';
+ if(c==='英語新生')return a.isEnglish==='是'&&a.isNewStudent==='是';
+ return true;
 }
-
-const pageTitles=[
- '基本資料','課輔第1頁','課輔第2頁',
- '英語第1頁','英語第2頁','行政服務','鼓勵與故事'
-];
-
-function pageList(){
- const p=[
-  {id:'intro',label:'問卷首頁'},
-  {id:'basic',label:'基本資料'}
- ];
- if(!config)return p;
- for(const name of pageTitles.slice(1)){
-  const qs=config.questions
-   .filter(q=>q.page===name&&eligible(q))
-   .sort((a,b)=>a.order-b.order);
-  if(qs.length)p.push({id:name,label:name,questions:qs});
- }
- return p;
-}
-
-function radio(name,v,label,checked){
- return `<label class="option">
- <input type="radio" name="${escapeHtml(name)}"
- value="${escapeHtml(v)}" ${checked?'checked':''}>
- <span>${escapeHtml(label)}</span></label>`;
-}
-
-function inputQuestion(q){
- const val=answer.responses[q.id];
- const multi=q.type.startsWith('複選');
- const isOther=q.type.includes('其他');
- const comment=q.type.includes('備註');
- let html=`<section class="field" data-q="${escapeHtml(q.id)}">
- <div class="qtitle"><span class="qbadge">${escapeHtml(q.id)}</span><span class="qtext">${escapeHtml(q.title)}</span>
- ${q.required?'<span class="required">＊必填</span>':''}
- </div>
- ${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
-
- if(q.type==='矩陣評分1-5'){
-   const scores=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};
-   html+='<div class="rating-legend">請每項擇一評分：1 分＝非常不喜歡、5 分＝非常喜歡。<br>沒參與或不了解，請選「不了解／未參與」（不列入平均）。</div>';
-   q.options.forEach((activity,i)=>{
-     html+=`<div class="rating-item"><div class="rating-name">${i+1}. ${escapeHtml(activity)}</div><div class="rating-scale">`;
-     for(const score of ['1','2','3','4','5','不了解／未參與']){
-       const checked=scores[activity]===score?'checked':'';
-       html+=`<label class="rating-choice ${score==='不了解／未參與'?'rating-na':''}"><input type="radio" name="rating-${escapeHtml(q.id)}-${i}" data-rate-q="${escapeHtml(q.id)}" data-activity="${escapeHtml(activity)}" value="${escapeHtml(score)}" ${checked}><span>${score}</span></label>`;
+function validate_(a,cfg){
+ if(!text_(a.studentName)||text_(a.studentName).length>80)throw new Error('請填寫學生姓名');
+ for(const k of ['isTutoring','isEnglish','isNewStudent'])if(!['是','否'].includes(a[k]))throw new Error('基本資料缺漏');
+ if(a.isTutoring!=='是'&&a.isEnglish!=='是')throw new Error('請確認就讀課程');
+ if(a.isTutoring==='是'&&!cfg.classes.tutoring.includes(a.tutoringClass))throw new Error('課輔班級無效，請重新載入問卷');
+ if(a.isEnglish==='是'&&!cfg.classes.english.includes(a.englishClass))throw new Error('英語班級無效，請重新載入問卷');
+ const max=Math.min(20,Math.max(1,Number(cfg.settings['複選上限'])||3));
+ for(const q of cfg.questions.filter(q=>isVisible_(q,a))){
+   const val=a.responses&&a.responses[q.id];
+   if(q.type==='矩陣評分1-5'){
+     if(!val||typeof val!=='object'||Array.isArray(val))throw new Error('請完成評分題：'+q.id);
+     const allowed=['1','2','3','4','5','不了解／未參與'];
+     if(Object.keys(val).some(k=>!q.options.includes(k)))throw new Error(q.id+' 的活動項目無效');
+     for(const activity of q.options){
+       if(q.required&&!val[activity])throw new Error('請完成 '+q.id+'：'+activity);
+       if(val[activity]&&!allowed.includes(String(val[activity])))throw new Error(q.id+' 評分無效');
      }
-     html+='</div></div>';
-   });
-   return html+'</section>';
- }
-
- if(q.type==='長文字')
-  return html+`<textarea data-text="${q.id}"
-  placeholder="歡迎填寫（選填）">${escapeHtml(val||'')}</textarea></section>`;
-
- const selected=Array.isArray(val)?val:[val];
-
- html+='<div class="options">'+q.options.map(o=>multi?
- `<label class="option"><input type="checkbox"
- name="${q.id}" value="${escapeHtml(o)}"
- ${selected.includes(o)?'checked':''}>
- <span>${escapeHtml(o)}</span></label>`:
- radio(q.id,o,o,selected.includes(o))
- ).join('')+'</div>';
-
- if(isOther){
-  const visible=selected.includes('其他');
-  html+=`<div class="minor" data-other-wrap="${q.id}"
-  style="display:${visible?'block':'none'}">
-  其他，請說明
-  <input type="text" data-other="${q.id}"
-  value="${escapeHtml(answer.other[q.id]||'')}">
-  </div>`;
- }
-
- if(comment)
-  html+=`<div class="minor">補充建議（選填）</div>
-  <textarea data-comment="${q.id}">${escapeHtml(answer.comments[q.id]||'')}</textarea>`;
-
- return html+'</section>';
-}
-
-function basic(){
- let h='<h1>基本資料</h1><p class="caption">請填寫孩子的中文姓名與就讀班級。</p><section class="field"><div class="qtitle">孩子中文姓名 <span class="required">＊必填</span></div><input type="text" data-basic="studentName" value="'+escapeHtml(answer.studentName)+'"></section>';
-
- for(const [key,label,cKey,cls] of [
-  ['isTutoring','是否就讀正華課輔班？','tutoringClass','tutoring'],
-  ['isEnglish','是否就讀佳音英語班？','englishClass','english'],
-  ['isNewStudent','是否為本學期新生？',null,null]
- ]){
-  h+=`<section class="field"><div class="qtitle">${label}</div>
-  <div class="options">
-  ${radio(key,'是','是',answer[key]==='是')}
-  ${radio(key,'否','否',answer[key]==='否')}
-  </div>`;
-
-  if(cKey){
-   h+=`<div data-class-wrap="${key}"
-   style="display:${answer[key]==='是'?'block':'none'}">
-   <div class="minor">選擇班級</div>
-   <select data-basic="${cKey}">
-   <option value="">請選擇班級</option>
-   ${(config.classes[cls]||[]).map(v=>
-    `<option value="${escapeHtml(v)}"
-    ${answer[cKey]===v?'selected':''}>${escapeHtml(v)}</option>`
-   ).join('')}
-   </select></div>`;
-  }
-  h+='</section>';
- }
-
- return h+config.questions
-  .filter(q=>q.page==='基本資料'&&eligible(q))
-  .sort((a,b)=>a.order-b.order)
-  .map(inputQuestion).join('');
-}
-
-function collect(){
- if(!config)return;
- document.querySelectorAll('[data-basic]').forEach(el=>
-  answer[el.dataset.basic]=el.value.trim()
- );
-
- for(const k of ['isTutoring','isEnglish','isNewStudent']){
-  const r=document.querySelector(`input[name="${k}"]:checked`);
-  if(r)answer[k]=r.value;
- }
-
- for(const q of config.questions){
-  const panel=document.querySelector(`[data-q="${q.id}"]`);
-  if(!panel)continue;
-
-   if(q.type==='矩陣評分1-5'){
-    const ratings={};
-    panel.querySelectorAll('input[data-rate-q]:checked').forEach(el=>ratings[el.dataset.activity]=el.value);
-    answer.responses[q.id]=ratings;
-    continue;
+     continue;
    }
-
-  if(q.type==='長文字'){
-   answer.responses[q.id]=panel.querySelector('textarea[data-text]')?.value.trim()||'';
-   continue;
-  }
-
-  const checked=[...panel.querySelectorAll(
-   'input[type=radio]:checked,input[type=checkbox]:checked'
-  )].map(el=>el.value);
-
-  answer.responses[q.id]=q.type.startsWith('複選')?
-   checked:(checked[0]||'');
-
-  if(q.type.includes('其他'))
-   answer.other[q.id]=panel.querySelector('[data-other]')?.value.trim()||'';
-
-  if(q.type.includes('備註'))
-   answer.comments[q.id]=panel.querySelector('[data-comment]')?.value.trim()||'';
- }
- save();
-}
-
-function toggle(){
- for(const k of ['isTutoring','isEnglish']){
-  const el=document.querySelector(`[data-class-wrap="${k}"]`);
-  if(el)el.style.display=answer[k]==='是'?'block':'none';
- }
-
- for(const q of config.questions){
-  const el=document.querySelector(`[data-other-wrap="${q.id}"]`);
-  const v=answer.responses[q.id];
-  if(el)el.style.display=
-   (Array.isArray(v)?v.includes('其他'):v==='其他')?'block':'none';
+   const str=Array.isArray(val)?val.join(''):text_(val);
+   if(q.required&&!str)throw new Error('請完成題目：'+q.id);
+   if(!str)continue;
+   if(q.type==='長文字'||q.type==='單選＋備註'){if(str.length>5000)throw new Error(q.id+' 回答過長');if(q.type==='長文字')continue;}
+   const selected=Array.isArray(val)?val:[text_(val)];
+   const limit=max;
+   if(q.type.startsWith('複選')&&(selected.length>limit||selected.length===0))throw new Error(q.id+' 最多選 '+limit+' 項');
+   for(const v of selected){if(v==='其他'&&q.type.includes('其他'))continue;if(!q.options.includes(v))throw new Error(q.id+' 選項無效');}
+   if(selected.includes('其他')&&!text_(a.other&&a.other[q.id]))throw new Error(q.id+' 請填寫其他說明');
  }
 }
-
-function check(p){
- if(p.id==='intro')return '';
-
- if(p.id==='basic'){
-  if(!answer.studentName)return '請填寫孩子中文姓名';
-  for(const k of ['isTutoring','isEnglish','isNewStudent'])
-   if(!answer[k])return '請完成基本資料中的是／否選擇';
-  if(answer.isTutoring==='否'&&answer.isEnglish==='否')
-   return '請確認孩子至少就讀一項課程';
-  if(answer.isTutoring==='是'&&!answer.tutoringClass)
-   return '請選擇課輔班級';
-  if(answer.isEnglish==='是'&&!answer.englishClass)
-   return '請選擇英語班級';
+function appendResponse_(a,cfg){
+ const ss=sheet_(),s=ss.getSheetByName(RESPONSE_SHEET);if(!s)throw new Error('缺少家長回覆總表');
+ const hdr=s.getRange(1,1,1,s.getLastColumn()).getDisplayValues()[0];
+ const payload={...a,questions:cfg.questions.map(q=>({id:q.id,title:q.title})),submittedAt:new Date().toISOString()};
+ const matrixQuestion=cfg.questions.find(q=>q.id==='B8'&&q.type==='矩陣評分1-5');
+ const matrixRatings=matrixQuestion&&a.responses&&a.responses.B8&&typeof a.responses.B8==='object'&&!Array.isArray(a.responses.B8)?a.responses.B8:null;
+ const map={'學生姓名':a.studentName,'是否就讀課輔':a.isTutoring,'課輔班級':a.tutoringClass||'','是否就讀英語':a.isEnglish,'英語班級':a.englishClass||'','是否新生':a.isNewStudent,[RESPONSES_JSON]:JSON.stringify(payload)};
+ Object.keys(a.responses||{}).forEach(k=>{const value=a.responses[k],base=Array.isArray(value)?value.join('、'):(value&&typeof value==='object'?Object.entries(value).map(([activity,score])=>activity+'：'+score).join('；'):text_(value));map[k]=base+(a.other?.[k]?'｜其他：'+a.other[k]:'')+(a.comments?.[k]?'｜補充：'+a.comments[k]:'')});
+ const out=hdr.map(h=>h==='提交時間'?new Date():(map[h]??''));
+ s.appendRow(out);
+ // 評分細項另存專用工作表：每份問卷一項活動一列，供班級及全校統計。
+ if(matrixQuestion&&matrixRatings){
+   try{
+   let detail=ss.getSheetByName('B8活動評分明細');
+   if(!detail){detail=ss.insertSheet('B8活動評分明細');detail.appendRow(['提交時間','學生姓名','課輔班級','活動名稱','評分','請求ID']);}
+   const now=new Date();
+   const rows=matrixQuestion.options.map(activity=>{const score=matrixRatings[activity];return [now,a.studentName,a.tutoringClass,activity,score==='不了解／未參與'?score:Number(score),a.requestId];});
+   if(rows.length)detail.getRange(detail.getLastRow()+1,1,rows.length,6).setValues(rows);
+   }catch(err){console.error('B8 評分明細未同步，可執行 rebuildB8RatingDetails 還原：'+err);}
  }
 
- const qs=p.id==='basic'?
-  config.questions.filter(q=>q.page==='基本資料'&&eligible(q)):
-  (p.questions||[]);
+ // C7 英語活動評分明細：一份回覆每項活動各一列。
+ const c7Question=cfg.questions.find(q=>q.id==='C7'&&q.type==='矩陣評分1-5');
+ const c7Ratings=c7Question&&a.responses&&a.responses.C7&&typeof a.responses.C7==='object'&&!Array.isArray(a.responses.C7)?a.responses.C7:null;
+ if(c7Question&&c7Ratings){
+   try{
+     let detail=ss.getSheetByName('C7活動評分明細');
+     if(!detail){detail=ss.insertSheet('C7活動評分明細');detail.appendRow(['提交時間','學生姓名','英語班級','活動名稱','評分','請求ID']);}
+     const now=new Date();
+     const rows=c7Question.options.map(activity=>{
+       const score=c7Ratings[activity];
+       return [now,a.studentName,a.englishClass,activity,score==='不了解／未參與'?score:Number(score),a.requestId];
+     });
+     if(rows.length)detail.getRange(detail.getLastRow()+1,1,rows.length,6).setValues(rows);
+   }catch(err){console.error('C7 評分明細未同步，可執行 rebuildC7RatingDetails 還原：'+err);}
+ }
+}
+function doPost(e){
+ let data={type:'zhenghua-survey-result',ok:false,requestId:''};
+ try{
+   const a=JSON.parse(e.parameter.payload||'{}');data.requestId=text_(a.requestId);
+   if(!/^[a-z0-9-]{8,90}$/i.test(data.requestId))throw new Error('請重新載入後再送出');
+   const lock=LockService.getScriptLock();lock.waitLock(30000);
+   try{
+     const cache=CacheService.getScriptCache(),key='posted_'+data.requestId;
+     if(cache.get(key)){data.ok=true;data.message='已成功收件';}
+     else{
+       const cfg=readConfig_();if(cfg.settings['問卷狀態']!=='開放')throw new Error('問卷目前未開放');
+       validate_(a,cfg);appendResponse_(a,cfg);cache.put(key,'1',21600);
+       data.ok=true;data.message='已成功送出';
+     }
+   }finally{lock.releaseLock();}
+ }catch(err){data.message=String(err.message||err);}
+ const json=JSON.stringify(data).replace(/</g,'\\u003c');
+ return HtmlService.createHtmlOutput('<!doctype html><html><body><script>window.top.postMessage('+json+',"*");window.parent.postMessage('+json+',"*");</script></body></html>').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+/** 按需手動執行：根據本次家長回覆，重新產生未填名單。 */
+function rebuildPendingLists(){
+ const ss=sheet_(),reply=ss.getSheetByName(RESPONSE_SHEET);if(!reply)throw new Error('找不到回覆總表');
+ const data=reply.getDataRange().getDisplayValues(),head=data.shift()||[];
+ for(const kind of ['tutoring','english']){
+   const roster=ss.getSheetByName(ROSTERS[kind]),dest=ss.getSheetByName(PENDING[kind]);if(!roster||!dest)continue;
+   const classKey=kind==='tutoring'?'課輔班級':'英語班級',isKey=kind==='tutoring'?'是否就讀課輔':'是否就讀英語';
+   const seen=new Set(data.filter(r=>r[head.indexOf(isKey)]==='是').map(r=>r[head.indexOf(classKey)]+'\u0001'+r[head.indexOf('學生姓名')]));
+   const students=roster.getLastRow()<2?[]:roster.getRange(2,1,roster.getLastRow()-1,2).getDisplayValues();
+   const rows=students.filter(r=>r[0]&&r[1]&&!seen.has(r[0]+'\u0001'+r[1])).map(r=>[r[0],r[1],'未填']);
+   dest.clearContents();dest.getRange(1,1,1,3).setValues([['班級','學生姓名','填答狀態']]);if(rows.length)dest.getRange(2,1,rows.length,3).setValues(rows);
+ }
+ return '未填名單已重新產生';
+}
 
- const max=Math.min(20,Math.max(1,Number(config.settings['複選上限'])||3));
 
- for(const q of qs){
-  const v=answer.responses[q.id];
-  const selected=Array.isArray(v)?v:[v];
-
-   if(q.type==='矩陣評分1-5'){
-    const ratings=v&&typeof v==='object'&&!Array.isArray(v)?v:{};
-    if(q.required&&q.options.some(activity=>!ratings[activity]))return `請完成：${q.title}（所有活動都需選擇）`;
-    continue;
+/** 首次切換 B8 時手動執行一次：先部署新版 Code.gs / HTML，再執行此函式。 */
+function activateB8Rating(){
+ const ss=sheet_(),cfg=ss.getSheetByName(CONFIG_SHEET);
+ if(!cfg)throw new Error('問卷設定不存在');
+ const data=cfg.getDataRange().getDisplayValues();
+ let found=false;
+ data.forEach((r,i)=>{
+   if(r[0]==='B8'){
+     cfg.getRange(i+1,4).setValue('以下正華課輔的特色課程與活動，您與孩子的喜愛程度如何？');
+     cfg.getRange(i+1,5).setValue('矩陣評分1-5');
+     cfg.getRange(i+1,9).setValue('每項活動選 1～5 分或「不了解／未參與」；1 分非常不喜歡，5 分非常喜歡。');
+     found=true;
    }
-
-  if(q.required&&(!v||Array.isArray(v)&&!v.length))
-   return `請完成：${q.title}`;
-
-  if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>(q.id==='C7'?3:max))
-   return `「${q.title}」最多選 ${q.id==='C7'?3:max} 項`;
-
-  if(q.type.includes('其他')&&selected.includes('其他')&&!answer.other[q.id])
-   return `請補充「${q.title}」的其他內容`;
- }
-
- return '';
-}
-
-function render(){
- if(!config)return;
- const ps=pageList();
- pageIndex=Math.max(0,Math.min(pageIndex,ps.length-1));
- const p=ps[pageIndex];
-
- $('step').textContent=`${pageIndex+1} / ${ps.length} 頁`;
- $('meterFill').style.width=`${(pageIndex+1)/ps.length*100}%`;
-
- let h='';
-
- if(p.id==='intro')
-  h=`<h1>${escapeHtml(config.settings['首頁標題']||'家長意見調查表')}</h1>
-  <div class="copy">${escapeHtml(config.settings['首頁歡迎文字']||'邀請您分享寶貴意見。')}</div>`;
- else if(p.id==='basic')
-  h=basic();
- else
-  h=`<h1>${escapeHtml(p.label)}</h1>${p.questions.map(inputQuestion).join('')}`;
-
- $('page').innerHTML=`<div class="panel">${h}
- <div class="actions">
- ${pageIndex?'<button id="prev" class="btn prev">上一頁</button>':''}
- <button id="next" class="btn next">
- ${pageIndex===ps.length-1?'送出問卷':'下一頁'}
- </button>
- </div></div>`;
-
- $('status').textContent='';
-
- $('prev')?.addEventListener('click',()=>{
-  collect();pageIndex--;save();render();window.scrollTo(0,0);
+   if(r[9]==='B8'&&!text_(r[11]))cfg.getRange(i+1,13).setValue('否');
  });
+ if(!found)throw new Error('找不到 B8 題目');
+ ensureB8Sheets_();
+ rebuildB8RatingDetails();
+ return 'B8 已切換為逐項評分，並建立統計表；請重新整理 GitHub 問卷確認。';
+}
 
- $('next').addEventListener('click',()=>{
-  collect();
-  const e=check(p);
-  if(e){$('status').textContent=e;return;}
-  if(pageIndex===ps.length-1)submit();
-  else{
-   pageIndex++;save();render();window.scrollTo(0,0);
-  }
+function ensureB8Sheets_(){
+ const ss=sheet_();
+ let detail=ss.getSheetByName('B8活動評分明細');
+ if(!detail)detail=ss.insertSheet('B8活動評分明細');
+ detail.getRange(1,1,1,6).setValues([['提交時間','學生姓名','課輔班級','活動名稱','評分','請求ID']]);
+ detail.setFrozenRows(1);
+ let summary=ss.getSheetByName('B8活動評分統計');
+ if(!summary)summary=ss.insertSheet('B8活動評分統計');
+ summary.clearContents();
+ summary.getRange(1,1,1,6).setValues([['活動名稱','全校平均分','4～5分比例','有效評分數','不了解／未參與','不了解比例']]);
+ const cfg=readConfig_();
+ const q=cfg.questions.find(x=>x.id==='B8');
+ if(!q||q.type!=='矩陣評分1-5')throw new Error('B8 題型尚未改為矩陣評分1-5');
+ const names=q.options;
+ const rows=names.map((activity,i)=>{
+   const n=i+2;
+   const name='A'+n;
+   const data="'B8活動評分明細'!$D$2:$D";
+   const score="'B8活動評分明細'!$E$2:$E";
+   return [activity,
+      '=IFERROR(AVERAGEIFS('+score+','+data+','+name+'),"")',
+      '=IFERROR((COUNTIFS('+data+','+name+','+score+',4)+COUNTIFS('+data+','+name+','+score+',5))/COUNTIFS('+data+','+name+','+score+',">=1",'+score+',"<=5"),"")',
+      '=COUNTIFS('+data+','+name+','+score+',">=1",'+score+',"<=5")',
+      '=COUNTIFS('+data+','+name+','+score+',"不了解／未參與")',
+      '=IFERROR(E'+n+'/(D'+n+'+E'+n+'),"")'];
  });
-
- $('page').addEventListener('input',()=>collect());
- $('page').addEventListener('change',()=>{collect();toggle()});
- toggle();
+ if(rows.length){summary.getRange(2,1,rows.length,6).setValues(rows);summary.getRange(2,2,rows.length,1).setNumberFormat('0.00');summary.getRange(2,3,rows.length,1).setNumberFormat('0.0%');summary.getRange(2,6,rows.length,1).setNumberFormat('0.0%');}
+ let offset=names.length+4;
+ summary.getRange(offset,1,1,6).setValues([['課輔班級','活動名稱','平均分','4～5分比例','有效評分數','不了解／未參與']]);
+ const classes=cfg.classes.tutoring;
+ const data="'B8活動評分明細'!$D$2:$D",score="'B8活動評分明細'!$E$2:$E",cl="'B8活動評分明細'!$C$2:$C";
+ const classRows=[];
+ classes.forEach(c=>names.forEach(a=>{
+   const n=offset+1+classRows.length, cRef='$A'+n,aRef='$B'+n;
+   const args=cl+','+cRef+','+data+','+aRef;
+   classRows.push([c,a,
+     '=IFERROR(AVERAGEIFS('+score+','+cl+','+cRef+','+data+','+aRef+'),"")',
+     '=IFERROR((COUNTIFS('+args+','+score+',4)+COUNTIFS('+args+','+score+',5))/COUNTIFS('+args+','+score+',">=1",'+score+',"<=5"),"")',
+     '=COUNTIFS('+args+','+score+',">=1",'+score+',"<=5")',
+     '=COUNTIFS('+args+','+score+',"不了解／未參與")']);
+ }));
+ if(classRows.length){summary.getRange(offset+1,1,classRows.length,6).setValues(classRows);summary.getRange(offset+1,3,classRows.length,1).setNumberFormat('0.00');summary.getRange(offset+1,4,classRows.length,1).setNumberFormat('0.0%');}
+ summary.setFrozenRows(1);
+ summary.setColumnWidth(1,300);summary.setColumnWidth(2,270);
+ summary.getRange(1,1,1,6).setBackground('#285c4f').setFontColor('#ffffff').setFontWeight('bold');
+ summary.getRange(offset,1,1,6).setBackground('#dcece5').setFontWeight('bold');
 }
 
-let requestId='';
-let submitTimeout=null;
-
-function submit(){
- if(posting)return;
- posting=true;
- const btn=$('next');
- btn.disabled=true;
- $('status').textContent='正在送出，請勿關閉視窗…';
-
- requestId=requestId||(
-  'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,12)
- );
- const payload={...answer,requestId};
-
- const form=document.createElement('form');
- form.method='POST';
- form.action=API;
- form.target='survey_transport';
- form.style.display='none';
-
- const field=document.createElement('input');
- field.name='payload';
- field.value=JSON.stringify(payload);
- form.appendChild(field);
- document.body.appendChild(form);
- form.submit();
- form.remove();
-
- clearTimeout(submitTimeout);
- submitTimeout=setTimeout(()=>{
-  if(!posting)return;
-  posting=false;
-  btn.disabled=false;
-  $('status').textContent=
-   '送出結果尚未確認。請先到 Google Sheet「家長回覆總表」查看是否已有這筆資料，再決定是否重試。';
- },20000);
+/** 安全重建：從「家長回覆總表」的原始答案 JSON 重新還原 B8 明細，不更動原始回覆。 */
+function rebuildB8RatingDetails(){
+ const ss=sheet_(),source=ss.getSheetByName(RESPONSE_SHEET);
+ ensureB8DetailOnly_();
+ const dest=ss.getSheetByName('B8活動評分明細');
+ const rows=source.getDataRange().getValues(),head=rows.shift()||[];
+ const j=head.indexOf(RESPONSES_JSON);
+ if(j<0)throw new Error('原始答案 JSON 欄不存在');
+ const out=[];
+ rows.forEach(r=>{
+   if(!r[j])return;
+   try{
+     const payload=JSON.parse(r[j]),rating=payload.responses&&payload.responses.B8;
+     if(!rating||typeof rating!=='object'||Array.isArray(rating))return;
+     Object.entries(rating).forEach(([activity,score])=>{
+       if(!['1','2','3','4','5','不了解／未參與'].includes(String(score)))return;
+       out.push([r[0],r[1],r[3],activity,score==='不了解／未參與'?score:Number(score),payload.requestId||'']);
+     });
+   }catch(err){console.error('略過無法解析的回覆：'+err);}
+ });
+ if(dest.getLastRow()>1)dest.getRange(2,1,dest.getLastRow()-1,6).clearContent();
+ if(out.length)dest.getRange(2,1,out.length,6).setValues(out);
+ return '已從原始答案重建 '+out.length+' 筆 B8 活動評分';
+}
+function ensureB8DetailOnly_(){
+ const ss=sheet_();let detail=ss.getSheetByName('B8活動評分明細');
+ if(!detail)detail=ss.insertSheet('B8活動評分明細');
+ detail.getRange(1,1,1,6).setValues([['提交時間','學生姓名','課輔班級','活動名稱','評分','請求ID']]);
 }
 
-window.addEventListener('message',event=>{
- const x=event.data;
 
- if(!posting||!x||
-    x.type!=='zhenghua-survey-result'||
-    x.requestId!==requestId)return;
-
- // 只接受 Google Apps Script 相關來源。
- if(!/^https:\/\/(script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+\.googleusercontent\.com)$/.test(event.origin))
-  return;
-
- clearTimeout(submitTimeout);
- posting=false;
-
- if(x.ok){
-  localStorage.removeItem(STORE);
-  $('meterFill').style.width='100%';
-  $('step').textContent='完成';
-  $('page').innerHTML=`<div class="panel">
-   <h1>${escapeHtml(config.settings['送出成功標題']||'問卷已送出')}</h1>
-   <div class="copy">${escapeHtml(config.settings['送出成功感謝文字']||'感謝您的回饋！')}</div>
-   </div>`;
-  $('status').textContent='';
-  window.scrollTo(0,0);
- }else{
-  $('status').textContent=x.message||'送出失敗，請重試';
-  $('next').disabled=false;
- }
-});
-
-function load(){
- if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API)){
-  $('page').innerHTML='<div class="panel"><h1>尚未完成網站設定</h1><p>請確認 Apps Script 的部署與存取權限設定。</p></div>';
-  return;
- }
-
- const cb='surveycb'+Date.now();
- const script=document.createElement('script');
- let done=false;
-
- const fail=()=>{
-  if(done)return;
-  done=true;
-  delete window[cb];
-  $('page').innerHTML='<div class="panel"><h1>問卷暫時無法載入</h1><p>請稍後重新整理頁面，或通知學校。</p></div>';
- };
-
- window[cb]=data=>{
-  if(done)return;
-  done=true;
-  delete window[cb];
-  script.remove();
-
-  if(!data.ok){fail();return;}
-
-  config=data;
-  read();
-
-  if(config.settings['問卷狀態']!=='開放'){
-   $('page').innerHTML='<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';
-   return;
-  }
-  render();
- };
-
- script.onerror=fail;
- script.src=API+'?action=config&callback='+cb+'&v='+Date.now();
- document.head.appendChild(script);
- setTimeout(fail,15000);
+/** 切換 C7 為七項英語活動逐項評分；後台新版部署且前端已更新後執行一次。 */
+function activateC7Rating(){
+ const ss=sheet_(),cfg=ss.getSheetByName(CONFIG_SHEET);
+ if(!cfg)throw new Error('問卷設定不存在');
+ const data=cfg.getDataRange().getDisplayValues();
+ let found=false;
+ data.forEach((r,i)=>{
+   if(r[0]==='C7'){
+     cfg.getRange(i+1,4).setValue('以下佳音英語的特色活動與服務，您與孩子的喜愛程度如何？');
+     cfg.getRange(i+1,5).setValue('矩陣評分1-5');
+     cfg.getRange(i+1,9).setValue('請依實際經驗評分；1 分非常不喜歡，5 分非常喜歡，不了解／未參與不列入平均。');
+     found=true;
+   }
+   if(r[9]==='C7'&&text_(r[11])==='其他')cfg.getRange(i+1,13).setValue('否');
+ });
+ if(!found)throw new Error('找不到 C7 題目');
+ ensureC7Sheets_();
+ rebuildC7RatingDetails();
+ return 'C7 已切換為逐項評分，英語活動統計已建立';
 }
 
-const iframe=document.createElement('iframe');
-iframe.name='survey_transport';
-iframe.style.display='none';
-iframe.title='問卷送出';
-document.body.appendChild(iframe);
+function ensureC7Sheets_(){
+ const ss=sheet_();
+ let detail=ss.getSheetByName('C7活動評分明細');
+ if(!detail)detail=ss.insertSheet('C7活動評分明細');
+ detail.getRange(1,1,1,6).setValues([['提交時間','學生姓名','英語班級','活動名稱','評分','請求ID']]);
+ detail.setFrozenRows(1);
+ let summary=ss.getSheetByName('C7活動評分統計');
+ if(!summary)summary=ss.insertSheet('C7活動評分統計');
+ summary.clearContents();
+ summary.getRange(1,1,1,6).setValues([['活動名稱','全校平均分','4～5分比例','有效評分數','不了解／未參與','不了解比例']]);
+ const cfg=readConfig_();
+ const q=cfg.questions.find(x=>x.id==='C7');
+ if(!q||q.type!=='矩陣評分1-5')throw new Error('C7 題型尚未改為矩陣評分1-5');
+ const names=q.options;
+ const rows=names.map((activity,i)=>{
+   const n=i+2;
+   const name='A'+n;
+   const data="'C7活動評分明細'!$D$2:$D";
+   const score="'C7活動評分明細'!$E$2:$E";
+   return [activity,
+      '=IFERROR(AVERAGEIFS('+score+','+data+','+name+'),"")',
+      '=IFERROR((COUNTIFS('+data+','+name+','+score+',4)+COUNTIFS('+data+','+name+','+score+',5))/COUNTIFS('+data+','+name+','+score+',">=1",'+score+',"<=5"),"")',
+      '=COUNTIFS('+data+','+name+','+score+',">=1",'+score+',"<=5")',
+      '=COUNTIFS('+data+','+name+','+score+',"不了解／未參與")',
+      '=IFERROR(E'+n+'/(D'+n+'+E'+n+'),"")'];
+ });
+ if(rows.length){summary.getRange(2,1,rows.length,6).setValues(rows);summary.getRange(2,2,rows.length,1).setNumberFormat('0.00');summary.getRange(2,3,rows.length,1).setNumberFormat('0.0%');summary.getRange(2,6,rows.length,1).setNumberFormat('0.0%');}
+ let offset=names.length+4;
+ summary.getRange(offset,1,1,6).setValues([['英語班級','活動名稱','平均分','4～5分比例','有效評分數','不了解／未參與']]);
+ const classes=cfg.classes.english;
+ const data="'C7活動評分明細'!$D$2:$D",score="'C7活動評分明細'!$E$2:$E",cl="'C7活動評分明細'!$C$2:$C";
+ const classRows=[];
+ classes.forEach(c=>names.forEach(a=>{
+   const n=offset+1+classRows.length, cRef='$A'+n,aRef='$B'+n;
+   const args=cl+','+cRef+','+data+','+aRef;
+   classRows.push([c,a,
+     '=IFERROR(AVERAGEIFS('+score+','+cl+','+cRef+','+data+','+aRef+'),"")',
+     '=IFERROR((COUNTIFS('+args+','+score+',4)+COUNTIFS('+args+','+score+',5))/COUNTIFS('+args+','+score+',">=1",'+score+',"<=5"),"")',
+     '=COUNTIFS('+args+','+score+',">=1",'+score+',"<=5")',
+     '=COUNTIFS('+args+','+score+',"不了解／未參與")']);
+ }));
+ if(classRows.length){summary.getRange(offset+1,1,classRows.length,6).setValues(classRows);summary.getRange(offset+1,3,classRows.length,1).setNumberFormat('0.00');summary.getRange(offset+1,4,classRows.length,1).setNumberFormat('0.0%');}
+ summary.setFrozenRows(1);
+ summary.setColumnWidth(1,300);summary.setColumnWidth(2,270);
+ summary.getRange(1,1,1,6).setBackground('#285c4f').setFontColor('#ffffff').setFontWeight('bold');
+ summary.getRange(offset,1,1,6).setBackground('#dcece5').setFontWeight('bold');
+}
 
-load();
-</script>
-</body>
-</html>
+
+function rebuildC7RatingDetails(){
+ const ss=sheet_(),source=ss.getSheetByName(RESPONSE_SHEET);
+ ensureC7DetailOnly_();
+ const dest=ss.getSheetByName('C7活動評分明細');
+ const rows=source.getDataRange().getValues(),head=rows.shift()||[];
+ const j=head.indexOf(RESPONSES_JSON);
+ if(j<0)throw new Error('原始答案 JSON 欄不存在');
+ const out=[];
+ rows.forEach(r=>{
+   if(!r[j])return;
+   try{
+     const payload=JSON.parse(r[j]),rating=payload.responses&&payload.responses.C7;
+     if(!rating||typeof rating!=='object'||Array.isArray(rating))return;
+     Object.entries(rating).forEach(([activity,score])=>{
+       if(!['1','2','3','4','5','不了解／未參與'].includes(String(score)))return;
+       out.push([r[0],r[1],r[5],activity,score==='不了解／未參與'?score:Number(score),payload.requestId||'']);
+     });
+   }catch(err){console.error('略過無法解析的回覆：'+err);}
+ });
+ if(dest.getLastRow()>1)dest.getRange(2,1,dest.getLastRow()-1,6).clearContent();
+ if(out.length)dest.getRange(2,1,out.length,6).setValues(out);
+ return '已從原始答案重建 '+out.length+' 筆 C7 活動評分';
+}
+function ensureC7DetailOnly_(){
+ const ss=sheet_();let detail=ss.getSheetByName('C7活動評分明細');
+ if(!detail)detail=ss.insertSheet('C7活動評分明細');
+ detail.getRange(1,1,1,6).setValues([['提交時間','學生姓名','英語班級','活動名稱','評分','請求ID']]);
+}
