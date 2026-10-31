@@ -114,12 +114,14 @@ function read(){
     comments:x.answer?.comments||{}
    };
    pageIndex=x.pageIndex||0;
+   requestId=x.pendingId||'';
+   requestSnapshot=x.pendingSnapshot||'';
   }
  }catch(e){}
 }
 function save(){
  try{
-  localStorage.setItem(STORE,JSON.stringify({answer,pageIndex}));
+  localStorage.setItem(STORE,JSON.stringify({answer,pageIndex,pendingId:requestId,pendingSnapshot:requestSnapshot}));
  }catch(e){}
 }
 
@@ -401,7 +403,10 @@ function render(){
 }
 
 let requestId='';
+let requestSnapshot='';
 let submitTimeout=null;
+const SUBMIT_WAIT_MS=60000;
+
 
 function submit(){
  if(posting)return;
@@ -410,9 +415,13 @@ function submit(){
  btn.disabled=true;
  $('status').textContent='正在送出，請勿關閉視窗…';
 
- requestId=requestId||(
-  'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,12)
- );
+ // 只有同一份答案的重試才沿用送出編號；家長修改答案後視為新的送出。
+ const snapshot=JSON.stringify(answer);
+ if(!requestId||requestSnapshot!==snapshot){
+  requestId='q'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);
+  requestSnapshot=snapshot;
+ }
+ save();
  const payload={...answer,requestId};
 
  const form=document.createElement('form');
@@ -435,14 +444,14 @@ function submit(){
   posting=false;
   btn.disabled=false;
   $('status').textContent=
-   '送出結果尚未確認。請先到 Google Sheet「家長回覆總表」查看是否已有這筆資料，再決定是否重試。';
- },20000);
+   '目前無法確認是否已送出。請勿重新填寫，可按「送出」再次確認；系統會使用相同送出編號，避免同一次填答重複記錄。若仍無法完成，請聯絡學校。';
+ },SUBMIT_WAIT_MS);
 }
 
 window.addEventListener('message',event=>{
  const x=event.data;
 
- if(!posting||!x||
+ if(!x||
     x.type!=='zhenghua-survey-result'||
     x.requestId!==requestId)return;
 
