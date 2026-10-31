@@ -342,8 +342,8 @@ function check(p){
   if(q.required&&(!v||Array.isArray(v)&&!v.length))
    return `請完成：${q.title}`;
 
-  if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>max)
-   return `「${q.title}」最多選 ${max} 項`;
+  if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>(q.id==='C7'?3:max))
+   return `「${q.title}」最多選 ${q.id==='C7'?3:max} 項`;
 
   if(q.type.includes('其他')&&selected.includes('其他')&&!answer.other[q.id])
    return `請補充「${q.title}」的其他內容`;
