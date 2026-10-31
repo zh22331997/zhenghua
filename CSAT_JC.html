@@ -183,10 +183,15 @@ function radio(name,v,label,checked){
  <span>${escapeHtml(label)}</span></label>`;
 }
 
+function showFollowup(id,val){
+ if(id==='D2')return val==='偶爾沒有收到'||val==='從未收到';
+ return ['普通','需要加強','希望減少','希望增加','太快','太慢','希望增加複習課'].includes(val);
+}
+
 function inputQuestion(q){
  const val=answer.responses[q.id];
  const multi=q.type.startsWith('複選');
- const isOther=q.type.includes('其他');
+ const isOther=q.type.includes('其他')||q.options.some(o=>o==='其他');
  const comment=q.type.includes('備註');
  let html=`<section class="field" data-q="${escapeHtml(q.id)}">
  <div class="qtitle"><span class="qbadge">${escapeHtml(q.id)}</span><span class="qtext">${escapeHtml(q.title)}</span>
@@ -227,14 +232,15 @@ function inputQuestion(q){
   html+=`<div class="minor" data-other-wrap="${q.id}"
   style="display:${visible?'block':'none'}">
   其他，請說明
-  <input type="text" data-other="${q.id}"
+  <input type="text" data-other="${q.id}" placeholder="請填寫其他原因" aria-label="${escapeHtml(q.title)}：其他原因"
   value="${escapeHtml(answer.other[q.id]||'')}">
   </div>`;
  }
 
  if(comment)
-  html+=`<div class="minor">補充建議（選填）</div>
-  <textarea data-comment="${q.id}">${escapeHtml(answer.comments[q.id]||'')}</textarea>`;
+  html+=`<div data-comment-wrap="${q.id}" style="display:${showFollowup(q.id,val)?'block':'none'}">
+  <div class="minor">${q.id==='D2'?'若未收到簡訊，歡迎補充情況（選填）':'如果有需要改善的地方，歡迎補充原因（選填）'}</div>
+  <textarea data-comment="${q.id}" placeholder="請簡單描述，方便學校後續了解">${escapeHtml(answer.comments[q.id]||'')}</textarea></div>`;
 
  return html+'</section>';
 }
@@ -325,9 +331,14 @@ function toggle(){
 
  for(const q of config.questions){
   const el=document.querySelector(`[data-other-wrap="${q.id}"]`);
-  const v=answer.responses[q.id];
-  if(el)el.style.display=
-   (Array.isArray(v)?v.includes('其他'):v==='其他')?'block':'none';
+  if(el){
+   // 依畫面實際勾選更新「其他」欄位。
+   const checked=[...document.querySelectorAll(`input[name="${q.id}"]:checked`)]
+     .some(input=>input.value==='其他');
+   el.style.display=checked?'block':'none';
+  }
+  const commentBox=document.querySelector(`[data-comment-wrap="${q.id}"]`);
+  if(commentBox)commentBox.style.display=showFollowup(q.id,answer.responses[q.id])?'block':'none';
  }
 }
 
@@ -443,7 +454,7 @@ function render(){
   }
  });
 
- $('page').addEventListener('input',()=>collect());
+ $('page').addEventListener('input',()=>{collect();toggle()});
  $('page').addEventListener('change',()=>{collect();toggle()});
  toggle();
 }
