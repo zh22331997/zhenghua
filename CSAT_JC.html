@@ -58,6 +58,26 @@ input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}
 .minor{font-size:14px;color:#536a62;margin:8px 0}
 .notice{background:#eef5f2;border-radius:12px;padding:13px;white-space:pre-line}
 @media(min-width:900px){.shell{padding-top:32px}}
+/* 三階段主題，僅改變視覺，不影響資料與送出 */
+body{--accent:#2d705d;--accent-dark:#214b41;--accent-bg:#eaf5ef;--accent-edge:#85b8a3;--accent-tint:#fbfdfc}
+body[data-stage="english"]{--accent:#b84651;--accent-dark:#8d2c39;--accent-bg:#fff0f1;--accent-edge:#de9da5;--accent-tint:#fffafb}
+body[data-stage="admin"]{--accent:#3777b6;--accent-dark:#24578a;--accent-bg:#eaf3fc;--accent-edge:#a0c7e8;--accent-tint:#fafdff}
+body[data-stage="care"]{--accent:#2d705d;--accent-dark:#214b41;--accent-bg:#eaf5ef;--accent-edge:#85b8a3;--accent-tint:#fbfdfc}
+.mast{color:var(--accent-dark)}
+.meter div,.next,.qbadge{background:var(--accent)}
+h1{color:var(--accent-dark)}
+.field[data-q]{border-left-color:var(--accent-edge);background:var(--accent-tint)}
+.option:has(input:checked),.rating-choice:has(input:checked){border-color:var(--accent);background:var(--accent-bg)}
+.option input,.rating-choice input{accent-color:var(--accent)}
+input:focus,select:focus,textarea:focus{outline-color:var(--accent-edge)}
+.stage-track{display:flex;gap:6px;margin:0 0 12px}
+.stage-chip{flex:1;text-align:center;background:#e4e9e9;color:#657476;padding:8px 3px;border-radius:9px;font-size:12px;font-weight:700;line-height:1.25}
+.stage-chip.active{background:var(--accent-bg);color:var(--accent-dark);outline:2px solid var(--accent)}
+.stage-chip.done{background:#e7eee9;color:#40685d}
+.stage-banner{background:var(--accent-bg);border-left:4px solid var(--accent);color:var(--accent-dark);padding:11px 14px;border-radius:11px;margin-bottom:17px}
+.stage-banner strong{display:block;font-size:18px}
+.stage-banner span{display:block;font-size:14px;margin-top:2px}
+@media(max-width:420px){.stage-chip{font-size:11px;padding:8px 1px}}
 </style>
 </head>
 <body>
@@ -66,6 +86,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid #b1dac7}
   正華學苑 × 佳音英語
   <small id="step"></small>
  </div>
+ <div id="stageTrack" class="stage-track" aria-label="問卷階段進度"></div>
  <div class="meter"><div id="meterFill"></div></div>
  <div id="page"><div class="panel">正在載入問卷…</div></div>
  <p id="status" role="status" aria-live="polite"></p>
@@ -354,13 +375,34 @@ function check(p){
  return '';
 }
 
+function stageOf(p){
+ if(p.id==='intro'||p.id==='basic')return 'start';
+ if(p.id.startsWith('課輔'))return 'care';
+ if(p.id.startsWith('英語'))return 'english';
+ return 'admin';
+}
+function currentStageList(ps){
+ const distinct=[];
+ for(const p of ps){const stage=stageOf(p);if(stage!=='start'&&!distinct.includes(stage))distinct.push(stage);}
+ return distinct;
+}
+const stageNames={care:'正華課輔',english:'佳音英語',admin:'行政回饋'};
+const stageDetails={care:'一起了解孩子的課輔學習狀況',english:'課輔階段完成！接著看看英語學習',admin:'最後一個階段，分享服務感受與溫暖鼓勵'};
+
 function render(){
  if(!config)return;
  const ps=pageList();
  pageIndex=Math.max(0,Math.min(pageIndex,ps.length-1));
  const p=ps[pageIndex];
 
- $('step').textContent=`${pageIndex+1} / ${ps.length} 頁`;
+ const stage=stageOf(p);
+ document.body.dataset.stage=stage;
+ const allStages=currentStageList(ps);
+ const stageIndex=allStages.indexOf(stage);
+ $('stageTrack').innerHTML=allStages.map((id,i)=>`<div class="stage-chip ${id===stage?'active':(stageIndex>=0&&i<stageIndex?'done':'')}">${i+1}. ${stageNames[id]}</div>`).join('');
+ const within=ps.filter(item=>stageOf(item)===stage);
+ const stagePage=within.findIndex(item=>item.id===p.id)+1;
+ $('step').textContent=stage==='start'?'填答準備':`${stageNames[stage]} ${stagePage}/${within.length}`;
  $('meterFill').style.width=`${(pageIndex+1)/ps.length*100}%`;
 
  let h='';
@@ -370,8 +412,12 @@ function render(){
   <div class="copy">${escapeHtml(config.settings['首頁歡迎文字']||'邀請您分享寶貴意見。')}</div>`;
  else if(p.id==='basic')
   h=basic();
- else
-  h=`<h1>${escapeHtml(p.label)}</h1>${p.questions.map(inputQuestion).join('')}`;
+ else {
+  const stageFirst=within[0]?.id===p.id;
+  const banner=stageFirst?`<div class="stage-banner"><strong>第 ${stageIndex+1} 階段｜${stageNames[stage]}</strong><span>${stageDetails[stage]}</span></div>`:'';
+  const userTitle=stage==='care'?'正華課輔':stage==='english'?'佳音英語':'行政與回饋';
+  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">${stagePage}/${within.length}</span></h1>${p.questions.map(inputQuestion).join('')}`;
+ }
 
  $('page').innerHTML=`<div class="panel">${h}
  <div class="actions">
