@@ -24,7 +24,7 @@ h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}
 .qtitle{font-size:19px;font-weight:700;margin-bottom:9px}
 /* 清楚的問卷題號與分題區塊 */
 .qtitle{display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;margin-bottom:13px;line-height:1.5}
-.qbadge{display:inline-flex;align-items:center;justify-content:center;min-width:47px;padding:4px 10px;border-radius:8px;background:#285c4f;color:#fff;font-size:15px;font-weight:800;letter-spacing:.3px;flex-shrink:0}
+.qbadge{display:inline-flex;align-items:center;justify-content:center;min-width:47px;padding:4px 10px;border-radius:8px;background:#285c4f;color:#fff;font-size:13px;font-weight:800;letter-spacing:.1px;flex-shrink:0}
 .qtext{flex:1;min-width:180px}
 .field[data-q]{margin:15px 0;padding:18px 15px;border:1px solid #dfebe6;border-left:4px solid #85b8a3;border-radius:13px;background:#fbfdfc}
 .field[data-q]:first-of-type{border-top:1px solid #dfebe6}
@@ -188,13 +188,13 @@ function showFollowup(id,val){
  return ['普通','需要加強','希望減少','希望增加','太快','太慢','希望增加複習課'].includes(val);
 }
 
-function inputQuestion(q){
+function inputQuestion(q, displayInfo){
  const val=answer.responses[q.id];
  const multi=q.type.startsWith('複選');
  const isOther=q.type.includes('其他')||q.options.some(o=>o==='其他');
  const comment=q.type.includes('備註');
  let html=`<section class="field" data-q="${escapeHtml(q.id)}">
- <div class="qtitle"><span class="qbadge">${escapeHtml(q.id)}</span><span class="qtext">${escapeHtml(q.title)}</span>
+ <div class="qtitle"><span class="qbadge">${escapeHtml(displayInfo || q.id)}</span><span class="qtext">${escapeHtml(q.title)}</span>
  ${q.required?'<span class="required">＊必填</span>':''}
  </div>
  ${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
@@ -413,7 +413,13 @@ function render(){
  $('stageTrack').innerHTML=allStages.map((id,i)=>`<div class="stage-chip ${id===stage?'active':(stageIndex>=0&&i<stageIndex?'done':'')}">${i+1}. ${stageNames[id]}</div>`).join('');
  const within=ps.filter(item=>stageOf(item)===stage);
  const stagePage=within.findIndex(item=>item.id===p.id)+1;
- $('step').textContent=stage==='start'?'填答準備':`${stageNames[stage]} ${stagePage}/${within.length}`;
+ // Each course/department numbers only the questions shown to this family.
+ const stageQuestions=within.flatMap(item=>item.questions||[]);
+ const stageTotal=stageQuestions.length;
+ const before=within.slice(0,stagePage-1).reduce((sum,item)=>sum+(item.questions||[]).length,0);
+ const currentCount=(p.questions||[]).length;
+ const currentRange=currentCount>1?`第 ${before+1}–${before+currentCount} 題`:`第 ${before+1} 題`;
+ $('step').textContent=stage==='start'?'填答準備':`${stageNames[stage]}｜${currentRange}／共 ${stageTotal} 題`;
  $('meterFill').style.width=`${(pageIndex+1)/ps.length*100}%`;
 
  let h='';
@@ -427,7 +433,7 @@ function render(){
   const stageFirst=within[0]?.id===p.id;
   const banner=stageFirst?`<div class="stage-banner"><strong>第 ${stageIndex+1} 階段｜${stageNames[stage]}</strong><span>${stageDetails[stage]}</span></div>`:'';
   const userTitle=stage==='care'?'正華課輔':stage==='english'?'佳音英語':'行政與回饋';
-  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">${stagePage}/${within.length}</span></h1>${p.questions.map(inputQuestion).join('')}`;
+  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${stage==='care'?'課輔':stage==='english'?'英語':'行政'}第 ${before+i+1} 題／共 ${stageTotal} 題`)).join('')}`;
  }
 
  $('page').innerHTML=`<div class="panel">${h}
