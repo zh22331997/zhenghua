@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>永和校家長意見調查表</title>
+<title>永平校家長意見調查表</title>
 <style>
 *{box-sizing:border-box}
 html,body{
@@ -93,14 +93,14 @@ input:focus,select:focus,textarea:focus{outline-color:var(--accent-edge)}
 </main>
 
 <script>
-window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbxTc62B0v10TOhwVU7TsyjBBzENejpUCAP8pjqiQnsppZYhyr22FTeo1FDx3xwhNwNFlQ/exec';
+window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbzCJJwmnfqCrK6NaKcQus7EBlmjLgU5ZZBAy5qWbqE5INuQGhhPYe8yJ0SXR7WW3wJT/exec'; // 請於部署後填入本校 Apps Script /exec 網址
 </script>
 
 <script>
 'use strict';
 
 const API=window.SURVEY_API_URL||'';
-const STORE='zhenghua-survey-yh-v1';
+const STORE='zhenghua-survey-yp-renumber-v2';
 let config=null;
 let answer={
  studentName:'',
@@ -192,6 +192,7 @@ function inputQuestion(q, displayInfo){
  const val=answer.responses[q.id];
  const multi=q.type.startsWith('複選');
  const isOther=q.type.includes('其他')||q.options.some(o=>o==='其他');
+ const displayOptions=isOther&&!q.options.includes('其他')?[...q.options,'其他']:q.options;
  const comment=q.type.includes('備註');
  let html=`<section class="field" data-q="${escapeHtml(q.id)}">
  <div class="qtitle">${displayInfo ? `<span class="qbadge">${escapeHtml(displayInfo)}</span>` : ''}<span class="qtext">${escapeHtml(q.title)}</span>
@@ -219,7 +220,7 @@ function inputQuestion(q, displayInfo){
 
  const selected=Array.isArray(val)?val:[val];
 
- html+='<div class="options">'+q.options.map(o=>multi?
+ html+='<div class="options">'+displayOptions.map(o=>multi?
  `<label class="option"><input type="checkbox"
  name="${q.id}" value="${escapeHtml(o)}"
  ${selected.includes(o)?'checked':''}>
@@ -314,8 +315,10 @@ function collect(){
   answer.responses[q.id]=q.type.startsWith('複選')?
    checked:(checked[0]||'');
 
-  if(q.type.includes('其他'))
-   answer.other[q.id]=panel.querySelector('[data-other]')?.value.trim()||'';
+  if(q.type.includes('其他')||q.options.includes('其他')){
+   const otherInput=panel.querySelector('[data-other]');
+   if(otherInput)answer.other[q.id]=otherInput.value; // 完整保留輸入，送出時再 trim
+  }
 
   if(q.type.includes('備註'))
    answer.comments[q.id]=panel.querySelector('[data-comment]')?.value.trim()||'';
@@ -370,6 +373,7 @@ function check(p){
    if(q.type==='矩陣評分1-5'){
     const ratings=v&&typeof v==='object'&&!Array.isArray(v)?v:{};
     if(q.required&&q.options.some(activity=>!ratings[activity]))return `請完成：${q.title}（所有活動都需選擇）`;
+    if(Object.values(ratings).some(score=>!['1','2','3','4','5','不了解／未參與'].includes(String(score))))return `「${q.title}」評分無效`;
     continue;
    }
 
@@ -378,8 +382,9 @@ function check(p){
 
   if(q.type.startsWith('複選')&&Array.isArray(v)&&v.length>max)
    return `「${q.title}」最多選 ${max} 項`;
+  if(q.type==='長文字'&&String(v||'').length>5000)return `「${q.title}」文字太長`;
 
-  if(q.type.includes('其他')&&selected.includes('其他')&&!answer.other[q.id])
+  if((q.type.includes('其他')||q.options.includes('其他'))&&selected.includes('其他')&&!String(answer.other[q.id]||'').trim())
    return `請補充「${q.title}」的其他內容`;
  }
 
@@ -433,7 +438,7 @@ function render(){
   const stageFirst=within[0]?.id===p.id;
   const banner=stageFirst?`<div class="stage-banner"><strong>第 ${stageIndex+1} 階段｜${stageNames[stage]}</strong><span>${stageDetails[stage]}</span></div>`:'';
   const userTitle=stage==='care'?'正華課輔':stage==='english'?'佳音英語':'行政與回饋';
-  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${stage==='care'?'課輔':stage==='english'?'英語':'行政'}第 ${before+i+1} 題／共 ${stageTotal} 題`)).join('')}`;
+  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${stage==='care'?'B':stage==='english'?'C':q.id.charAt(0)}${before+i+1}｜${stage==='care'?'課輔':stage==='english'?'英語':'行政'}第 ${before+i+1} 題`)).join('')}`;
  }
 
  $('page').innerHTML=`<div class="panel">${h}
@@ -460,8 +465,11 @@ function render(){
   }
  });
 
- $('page').addEventListener('input',()=>{collect();toggle()});
- $('page').addEventListener('change',()=>{collect();toggle()});
+ $('page').oninput=event=>{
+  if(event.target.matches('[data-other]'))answer.other[event.target.dataset.other]=event.target.value;
+  collect();toggle();
+ };
+ $('page').onchange=()=>{collect();toggle()};
  toggle();
 }
 
@@ -564,7 +572,10 @@ function load(){
   delete window[cb];
   script.remove();
 
-  if(!data.ok){fail();return;}
+  if(!data.ok){
+   $('page').innerHTML='<div class="panel"><h1>問卷設定讀取失敗</h1><p>請通知學校檢查後台設定。</p></div>';
+   return;
+  }
 
   config=data;
   read();
