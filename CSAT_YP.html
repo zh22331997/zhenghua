@@ -402,7 +402,7 @@ function render(){
   const stageFirst=within[0]?.id===p.id;
   const banner=stageFirst?`<div class="stage-banner"><strong>第 ${stageIndex+1} 階段｜${stageNames[stage]}</strong><span>${stageDetails[stage]}</span></div>`:'';
   const userTitle=stage==='care'?'正華課輔':stage==='english'?'佳音英語':'行政與回饋';
-  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${stage==='care'?'B':stage==='english'?'C':q.id.charAt(0)}${before+i+1}｜${stage==='care'?'課輔':stage==='english'?'英語':'行政'}第 ${before+i+1} 題`)).join('')}`;
+  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${q.id}｜${stage==='care'?'課輔':stage==='english'?'英語':'行政'}題目`)).join('')}`;
  }
 
  $('page').innerHTML=`<div class="panel">${h}
