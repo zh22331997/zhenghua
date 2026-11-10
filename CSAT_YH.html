@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>永平校家長意見調查表</title>
+<title>永和校家長意見調查表</title>
 <style>
 *{box-sizing:border-box}
 html,body{
@@ -29,14 +29,6 @@ h1{font-size:clamp(25px,5vw,33px);line-height:1.3;margin:0 0 16px;color:#214b41}
 .field[data-q]{margin:15px 0;padding:18px 15px;border:1px solid #dfebe6;border-left:4px solid #85b8a3;border-radius:13px;background:#fbfdfc}
 .field[data-q]:first-of-type{border-top:1px solid #dfebe6}
 .field[data-q] + .field[data-q]{margin-top:20px}
-.rating-legend{background:#eef6f2;border-radius:10px;padding:10px 12px;margin:10px 0 15px;color:#315b4e;font-size:14px}
-.rating-item{padding:13px 0;border-top:1px solid #e2eee8}
-.rating-name{font-weight:700;margin-bottom:9px}
-.rating-scale{display:flex;flex-wrap:wrap;gap:8px}
-.rating-choice{display:flex;align-items:center;justify-content:center;gap:5px;min-width:49px;padding:8px 11px;border:1px solid #d6e4dd;border-radius:9px;background:white;cursor:pointer;font-size:15px}
-.rating-choice:has(input:checked){border-color:#32745e;background:#e4f3e9;font-weight:700}
-.rating-choice input{accent-color:#32745e}
-.rating-na{min-width:auto}
 @media(max-width:420px){.rating-choice{min-width:43px;padding:8px}}
 @media(max-width:420px){.field[data-q]{padding:16px 12px}.qtitle{font-size:18px}.qtext{min-width:150px}}
 
@@ -93,14 +85,14 @@ input:focus,select:focus,textarea:focus{outline-color:var(--accent-edge)}
 </main>
 
 <script>
-window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbzCJJwmnfqCrK6NaKcQus7EBlmjLgU5ZZBAy5qWbqE5INuQGhhPYe8yJ0SXR7WW3wJT/exec'; // 請於部署後填入本校 Apps Script /exec 網址
+window.SURVEY_API_URL = 'https://script.google.com/macros/s/AKfycbxTc62B0v10TOhwVU7TsyjBBzENejpUCAP8pjqiQnsppZYhyr22FTeo1FDx3xwhNwNFlQ/exec'; // 請於部署後填入本校 Apps Script /exec 網址
 </script>
 
 <script>
 'use strict';
 
 const API=window.SURVEY_API_URL||'';
-const STORE='zhenghua-survey-yp-renumber-v2';
+const STORE='zhenghua-survey-yh-renumber-v2';
 let config=null;
 let answer={
  studentName:'',
@@ -200,20 +192,6 @@ function inputQuestion(q, displayInfo){
  </div>
  ${q.hint?`<p class="hint">${escapeHtml(q.hint)}</p>`:''}`;
 
- if(q.type==='矩陣評分1-5'){
-   const scores=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};
-   html+='<div class="rating-legend">請每項擇一評分：1 分＝非常不喜歡、5 分＝非常喜歡。<br>沒參與或不了解，請選「不了解／未參與」（不列入平均）。</div>';
-   q.options.forEach((activity,i)=>{
-     html+=`<div class="rating-item"><div class="rating-name">${i+1}. ${escapeHtml(activity)}</div><div class="rating-scale">`;
-     for(const score of ['1','2','3','4','5','不了解／未參與']){
-       const checked=scores[activity]===score?'checked':'';
-       html+=`<label class="rating-choice ${score==='不了解／未參與'?'rating-na':''}"><input type="radio" name="rating-${escapeHtml(q.id)}-${i}" data-rate-q="${escapeHtml(q.id)}" data-activity="${escapeHtml(activity)}" value="${escapeHtml(score)}" ${checked}><span>${score}</span></label>`;
-     }
-     html+='</div></div>';
-   });
-   return html+'</section>';
- }
-
  if(q.type==='長文字')
   return html+`<textarea data-text="${q.id}"
   placeholder="歡迎填寫（選填）">${escapeHtml(val||'')}</textarea></section>`;
@@ -296,13 +274,6 @@ function collect(){
   const panel=document.querySelector(`[data-q="${q.id}"]`);
   if(!panel)continue;
 
-   if(q.type==='矩陣評分1-5'){
-    const ratings={};
-    panel.querySelectorAll('input[data-rate-q]:checked').forEach(el=>ratings[el.dataset.activity]=el.value);
-    answer.responses[q.id]=ratings;
-    continue;
-   }
-
   if(q.type==='長文字'){
    answer.responses[q.id]=panel.querySelector('textarea[data-text]')?.value.trim()||'';
    continue;
@@ -370,13 +341,6 @@ function check(p){
   const v=answer.responses[q.id];
   const selected=Array.isArray(v)?v:[v];
 
-   if(q.type==='矩陣評分1-5'){
-    const ratings=v&&typeof v==='object'&&!Array.isArray(v)?v:{};
-    if(q.required&&q.options.some(activity=>!ratings[activity]))return `請完成：${q.title}（所有活動都需選擇）`;
-    if(Object.values(ratings).some(score=>!['1','2','3','4','5','不了解／未參與'].includes(String(score))))return `「${q.title}」評分無效`;
-    continue;
-   }
-
   if(q.required&&(!v||Array.isArray(v)&&!v.length))
    return `請完成：${q.title}`;
 
@@ -438,7 +402,7 @@ function render(){
   const stageFirst=within[0]?.id===p.id;
   const banner=stageFirst?`<div class="stage-banner"><strong>第 ${stageIndex+1} 階段｜${stageNames[stage]}</strong><span>${stageDetails[stage]}</span></div>`:'';
   const userTitle=stage==='care'?'正華課輔':stage==='english'?'佳音英語':'行政與回饋';
-  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${stage==='care'?'B':stage==='english'?'C':q.id.charAt(0)}${before+i+1}｜${stage==='care'?'課輔':stage==='english'?'英語':'行政'}第 ${before+i+1} 題`)).join('')}`;
+  h=`${banner}<h1>${userTitle} <span style="font-size:15px;font-weight:500">第 ${stagePage} 頁／共 ${within.length} 頁</span></h1>${p.questions.map((q,i)=>inputQuestion(q,`${stage==='care'?'課輔':stage==='english'?'英語':'行政'}第 ${before+i+1} 題`)).join('')}`;
  }
 
  $('page').innerHTML=`<div class="panel">${h}
@@ -579,6 +543,12 @@ function load(){
 
   config=data;
   read();
+  // 舊版問卷殘留的停用題號與備註不再送出，避免污染原始答案 JSON。
+  const activeIds=new Set(config.questions.map(q=>q.id));
+  for(const key of ['responses','other','comments']){
+   for(const id of Object.keys(answer[key]||{}))if(!activeIds.has(id))delete answer[key][id];
+  }
+  save();
 
   if(config.settings['問卷狀態']!=='開放'){
    $('page').innerHTML='<div class="panel"><h1>問卷尚未開放</h1><p>請留意學校通知，謝謝。</p></div>';
